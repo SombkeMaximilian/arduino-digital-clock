@@ -1,0 +1,3 @@
+avr-libc 1:2.0.0+Atmel3.6.2-3
+avr-gcc 5.4.0
+avrdude 6.3-20171130
