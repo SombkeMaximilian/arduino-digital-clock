@@ -448,12 +448,10 @@ void _enablePulse(LCD * lcd) {
     
     // 2. pull it high, the enable pulse needs to be >500ns
     set_io_bit(PORTB, lcd->_en_pin);
-    //_delay_us(1);
-    _delay_ms(500);
+    _delay_us(2);
     
-    // 3. pull it low again and wait for the LCD (>40
+    // 3. pull it low again and wait for the LCD (>40 us)
     clear_io_bit(PORTB, lcd->_en_pin);
-    //_delay_us(50);
-    _delay_ms(500);
+    _delay_us(100);
     
 }
