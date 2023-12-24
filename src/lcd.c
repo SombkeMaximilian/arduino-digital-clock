@@ -114,8 +114,8 @@ void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
     lcd->_displayfunction &= FLAG_FUNCTIONSET_5x8DOT;
     
     // send the commands
-    for (int i = 1; i < 3; i++) {
-        for (int j = 1; i < 16; j++) {
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 16; j++) {
             setCursorPosition(lcd, i, j);
         }
     }
