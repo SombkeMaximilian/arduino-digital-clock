@@ -5,6 +5,8 @@
 # include <avr/interrupt.h>
 # include <util/delay.h>
 
+# include "lcd.h"
+
 
 // ------------------------------------------------------------ //
 // constants
@@ -12,7 +14,6 @@
 # ifndef F_CPU
 # define F_CPU 16000000UL
 # endif
-# define mskDDRD (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5)
 
 
 // ------------------------------------------------------------ //
@@ -20,35 +21,14 @@
 
 int main (void) {
     
-    setup();
+    LCD testlcd;
     
-    main_loop();
+    DDRD = (1 << PD2) | (1 << PD3) | (1 << PD4) | (1 << PD5);
+    DDRB = (1 << PB0) | (1 << PB1) | (1 << PB2);
+    
+    config(&testlcd, PB0, PB1, PB2, PD2, PD3, PD4, PD5, 0, 0, 0, 0);
+    init(&testlcd, 4, 2, 16);
     
     return 0;
-    
-}
-
-
-// ------------------------------------------------------------ //
-// main loop of the program
-
-void main_loop (void) {
-    
-    while (1) {
-        
-        PORTD ^= mskDDRD;
-        _delay_ms(1000);
-        
-    }
-    
-}
-
-
-// ------------------------------------------------------------ //
-// configures the arduino pins
-
-void setup (void) {
-    
-    DDRD = mskDDRD;
     
 }
