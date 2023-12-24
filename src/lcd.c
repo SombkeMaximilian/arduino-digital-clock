@@ -121,8 +121,13 @@ void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
         }
     }
     
-    // initialize according to the datasheet (page 44-45)
+    // send the commands
+    LCDcommand(lcd, lcd->_displayfunction);
+    LCDcommand(lcd, lcd->_displaycontrol);
+    LCDcommand(lcd, lcd->_displaymode);
     
+    // initialize according to the datasheet (page 44-45)
+    // TBD
     
 }
 
@@ -302,7 +307,7 @@ void shiftDisplayRight(LCD * lcd) {
 // -------------------------------------------------- //
 // create a custom character
 
-void customCharacter();
+void customCharacter(); // TBD
 
 
 // -------------------------------------------------- //
