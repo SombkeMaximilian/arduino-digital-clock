@@ -120,6 +120,10 @@ void shiftDisplayRight(LCD * lcd);
 void customCharacter();
 void setCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col);
 
+// send commands or data to the LCD
+void LCDcommand(LCD * lcd, uint8_t command);
+void LCDcharacter(LCD * lcd, uint8_t data);
+void LCDprint(LCD * lcd, char * data);
 
 // ------------------------------------------------------------ //
 // functions for communicating via the data bus

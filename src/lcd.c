@@ -1,6 +1,7 @@
 // -------------------------------------------------- //
 // dependencies
 
+# include <string.h>
 # include <avr/io.h>
 # include <avr/interrupt.h>
 # include <util/delay.h>
@@ -120,6 +121,9 @@ void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
         }
     }
     
+    // initialize according to the datasheet (page 44-45)
+    
+    
 }
 
 // -------------------------------------------------- //
@@ -127,7 +131,7 @@ void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
 
 void clearDisplay(LCD * lcd) {
     
-    _send(lcd, MASK_CLEARDISPLAY, 0);
+    LCDcommand(lcd, MASK_CLEARDISPLAY);
     
 }
 
@@ -137,7 +141,7 @@ void clearDisplay(LCD * lcd) {
 
 void returnHome(LCD * lcd) {
     
-    _send(lcd, MASK_RETURNHOME, 0);
+    LCDcommand(lcd, MASK_RETURNHOME);
     
 }
 
@@ -148,7 +152,7 @@ void returnHome(LCD * lcd) {
 void textLeftToRight(LCD * lcd) {
     
     lcd->_displaymode |= FLAG_ENTRY_SHIFTCURSORRIGHT;
-    _send(lcd, lcd->_displaymode, 0);
+    LCDcommand(lcd, lcd->_displaymode);
     
 }
 
@@ -159,7 +163,7 @@ void textLeftToRight(LCD * lcd) {
 void textRightToLeft(LCD * lcd) {
     
     lcd->_displaymode &= FLAG_ENTRY_SHIFTCURSORLEFT;
-    _send(lcd, lcd->_displaymode, 0);
+    LCDcommand(lcd, lcd->_displaymode);
     
 }
 
@@ -171,7 +175,7 @@ void textRightToLeft(LCD * lcd) {
 void autoShiftOn(LCD * lcd) {
     
     lcd->_displaymode |= FLAG_ENTRY_AUTOSHIFT;
-    _send(lcd, lcd->_displaymode, 0);
+    LCDcommand(lcd, lcd->_displaymode);
     
 }
 
@@ -182,7 +186,7 @@ void autoShiftOn(LCD * lcd) {
 void autoShiftOff(LCD * lcd) {
     
     lcd->_displaymode &= FLAG_ENTRY_NOAUTOSHIFT;
-    _send(lcd, lcd->_displaymode, 0);
+    LCDcommand(lcd, lcd->_displaymode);
     
 }
 
@@ -193,7 +197,7 @@ void autoShiftOff(LCD * lcd) {
 void displayOn(LCD * lcd) {
     
     lcd->_displaycontrol |= FLAG_DISPLAYCONTROL_DISPLAYON;
-    _send(lcd, lcd->_displaycontrol, 0);
+    LCDcommand(lcd, lcd->_displaycontrol);
     
 }
 
@@ -204,7 +208,7 @@ void displayOn(LCD * lcd) {
 void displayOff(LCD * lcd) {
     
     lcd->_displaycontrol &= FLAG_DISPLAYCONTROL_DISPLAYOFF;
-    _send(lcd, lcd->_displaycontrol, 0);
+    LCDcommand(lcd, lcd->_displaycontrol);
     
 }
 
@@ -215,7 +219,7 @@ void displayOff(LCD * lcd) {
 void cursorOn(LCD * lcd) {
     
     lcd->_displaycontrol |= FLAG_DISPLAYCONTROL_CURSORON;
-    _send(lcd, lcd->_displaycontrol, 0);
+    LCDcommand(lcd, lcd->_displaycontrol);
     
 }
 
@@ -226,7 +230,7 @@ void cursorOn(LCD * lcd) {
 void cursorOff(LCD * lcd) {
     
     lcd->_displaycontrol &= FLAG_DISPLAYCONTROL_CURSOROFF;
-    _send(lcd, lcd->_displaycontrol, 0);
+    LCDcommand(lcd, lcd->_displaycontrol);
     
 }
 
@@ -237,7 +241,7 @@ void cursorOff(LCD * lcd) {
 void blinkOn(LCD * lcd) {
     
     lcd->_displaycontrol |= FLAG_DISPLAYCONTROL_BLINKON;
-    _send(lcd, lcd->_displaycontrol, 0);
+    LCDcommand(lcd, lcd->_displaycontrol);
     
 }
 
@@ -248,7 +252,7 @@ void blinkOn(LCD * lcd) {
 void blinkOff(LCD * lcd) {
     
     lcd->_displaycontrol &= FLAG_DISPLAYCONTROL_BLINKOFF;
-    _send(lcd, lcd->_displaycontrol, 0);
+    LCDcommand(lcd, lcd->_displaycontrol);
     
 }
 
@@ -258,7 +262,7 @@ void blinkOff(LCD * lcd) {
 
 void shiftCursorLeft(LCD * lcd) {
     
-    _send(lcd, (MASK_DISPLAYCURSORSHIFT & FLAG_DISPLAYCURSORSHIFT_SHIFTCURSOR) & FLAG_DISPLAYCURSORSHIFT_SHIFTLEFT, 0);
+    LCDcommand(lcd, (MASK_DISPLAYCURSORSHIFT & FLAG_DISPLAYCURSORSHIFT_SHIFTCURSOR) & FLAG_DISPLAYCURSORSHIFT_SHIFTLEFT);
     
 }
 
@@ -268,7 +272,7 @@ void shiftCursorLeft(LCD * lcd) {
 
 void shiftCursorRight(LCD * lcd) {
     
-    _send(lcd, (MASK_DISPLAYCURSORSHIFT & FLAG_DISPLAYCURSORSHIFT_SHIFTCURSOR) | FLAG_DISPLAYCURSORSHIFT_SHIFTRIGHT, 0);
+    LCDcommand(lcd, (MASK_DISPLAYCURSORSHIFT & FLAG_DISPLAYCURSORSHIFT_SHIFTCURSOR) | FLAG_DISPLAYCURSORSHIFT_SHIFTRIGHT);
     
 }
 
@@ -279,7 +283,7 @@ void shiftCursorRight(LCD * lcd) {
 
 void shiftDisplayLeft(LCD * lcd) {
     
-    _send(lcd, (MASK_DISPLAYCURSORSHIFT | FLAG_DISPLAYCURSORSHIFT_SHIFTDISPLAY) & FLAG_DISPLAYCURSORSHIFT_SHIFTLEFT, 0);
+    LCDcommand(lcd, (MASK_DISPLAYCURSORSHIFT | FLAG_DISPLAYCURSORSHIFT_SHIFTDISPLAY) & FLAG_DISPLAYCURSORSHIFT_SHIFTLEFT);
     
 }
 
@@ -290,7 +294,7 @@ void shiftDisplayLeft(LCD * lcd) {
 
 void shiftDisplayRight(LCD * lcd) {
     
-    _send(lcd, (MASK_DISPLAYCURSORSHIFT | FLAG_DISPLAYCURSORSHIFT_SHIFTDISPLAY) | FLAG_DISPLAYCURSORSHIFT_SHIFTRIGHT, 0);
+    LCDcommand(lcd, (MASK_DISPLAYCURSORSHIFT | FLAG_DISPLAYCURSORSHIFT_SHIFTDISPLAY) | FLAG_DISPLAYCURSORSHIFT_SHIFTRIGHT);
     
 }
 
@@ -327,7 +331,41 @@ void setCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col) {
         
     }
     
-    _send(lcd, MASK_SETDDRAMADDR | (lcd->_row_offset[target_row] + target_col), 0);
+    LCDcommand(lcd, MASK_SETDDRAMADDR | (lcd->_row_offset[target_row] + target_col));
+    
+}
+
+
+// -------------------------------------------------- //
+// sends a command to the LCD
+
+void LCDcommand(LCD * lcd, uint8_t command) {
+    
+    _send(lcd, command, 0);
+    
+}
+
+
+// -------------------------------------------------- //
+// sends a character to the LCD
+
+void LCDcharacter(LCD * lcd, uint8_t data) {
+    
+    _send(lcd, data, 1);
+    
+}
+
+
+// -------------------------------------------------- //
+// sends a string to the LCD
+
+void LCDprint(LCD * lcd, char * data) {
+    
+    for (int i = 0; data[i] != '\0'; i++) {
+        
+        LCDcharacter(lcd, data[i]);
+        
+    }
     
 }
 
