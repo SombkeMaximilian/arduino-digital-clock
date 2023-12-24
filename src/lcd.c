@@ -59,9 +59,11 @@ void config(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
 void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows, 
           uint8_t cols) {
     
-    // number of lines and columns
+    // number of lines and columns, and addresses of the first column in each row
     lcd->_rows = rows;
     lcd->_cols = cols;
+    lcd->_row_offset[0] = 0x00;
+    lcd->_row_offset[1] = 0x40;
     
     // commands without parameters
     lcd->_displaymode     = MASK_ENTRYMODESET;
@@ -112,9 +114,11 @@ void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
     lcd->_displayfunction &= FLAG_FUNCTIONSET_5x8DOT;
     
     // send the commands
-    _send(lcd, lcd->_displayfunction, 0);
-    _send(lcd, lcd->_displaycontrol, 0);
-    _send(lcd, lcd->_displaymode, 0);
+    for (int i = 1; i < 3; i++) {
+        for (int j = 1; i < 16; j++) {
+            setCursorPosition(lcd, i, j);
+        }
+    }
     
 }
 
@@ -287,6 +291,43 @@ void shiftDisplayLeft(LCD * lcd) {
 void shiftDisplayRight(LCD * lcd) {
     
     _send(lcd, (MASK_DISPLAYCURSORSHIFT | FLAG_DISPLAYCURSORSHIFT_SHIFTDISPLAY) | FLAG_DISPLAYCURSORSHIFT_SHIFTRIGHT, 0);
+    
+}
+
+
+// -------------------------------------------------- //
+// create a custom character
+
+void customCharacter();
+
+
+// -------------------------------------------------- //
+// set the cursor to a position by setting the address 
+// counter to the corresponding DDRAM address
+
+void setCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col) {
+    
+    if (target_row < 0) {
+        
+        target_row = 0;
+        
+    } else if (target_row >= lcd->_rows) {
+        
+        target_row = lcd->_rows - 1;
+        
+    }
+    
+    if (target_col < 0) {
+        
+        target_col = 0;
+        
+    } else if (target_col >= lcd->_cols) {
+        
+        target_col = lcd->_cols - 1;
+        
+    }
+    
+    _send(lcd, MASK_SETDDRAMADDR | (lcd->_row_offset[target_row] + target_col), 0);
     
 }
 

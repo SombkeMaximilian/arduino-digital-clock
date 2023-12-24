@@ -75,6 +75,7 @@ typedef struct LCD {
     // display dimensions
     uint8_t _rows;
     uint8_t _cols;
+    uint8_t _row_offset[8];
     
 } LCD;
 
@@ -114,6 +115,10 @@ void shiftCursorLeft(LCD * lcd);
 void shiftCursorRight(LCD * lcd);
 void shiftDisplayLeft(LCD * lcd);
 void shiftDisplayRight(LCD * lcd);
+
+// cursor position & custom characters
+void customCharacter();
+void setCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col);
 
 
 // ------------------------------------------------------------ //
