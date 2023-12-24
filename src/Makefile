@@ -9,7 +9,7 @@ PORT         = /dev/serial/by-path/pci-0000\:00\:14.0-usb-0\:1\:1.0
 CFLAGS       = -c -std=gnu99 -Os -Wall -ffunction-sections -fdata-sections -mmcu=$(MCU) -DF_CPU=$(CPUFREQ)
 LFLAGS       = -Os -mmcu=$(MCU) -Wl,--gc-sections
 OBJCOPYFLAGS = -O ihex -R .eeprom
-AVRDUDEFLAGS = -v -p $(MCU) -c $(PROGRAMMER) -b $(BAUD) -P $(PORT) -U flash:w:$(MAINFILENAME).ihex
+AVRDUDEFLAGS = -C /etc/avrdude.conf -v -p $(MCU) -c $(PROGRAMMER) -b $(BAUD) -P $(PORT)
 
 MAINFILENAME = main
 LCDFILENAME  = lcd
@@ -24,7 +24,7 @@ compile: $(MAINFILENAME).c $(LCDFILENAME).c $(LCDFILENAME).h
 	avr-gcc $(CFLAGS) $(LCDFILENAME).c -o $(LCDFILENAME).o
 
 
-link: $(MAINFILENAME).o
+link: $(MAINFILENAME).o $(LCDFILENAME).o
 	
 	avr-gcc $(LFLAGS) $(MAINFILENAME).o $(LCDFILENAME).o -o $(MAINFILENAME).elf
 
@@ -36,7 +36,7 @@ converttohex: $(MAINFILENAME).elf
 
 upload: $(MAINFILENAME).ihex
 	
-	avrdude $(AVRDUDEFLAGS)
+	avrdude $(AVRDUDEFLAGS) -U flash:w:$(MAINFILENAME).ihex
 	
 	
 clean:
