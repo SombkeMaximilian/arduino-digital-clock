@@ -396,15 +396,19 @@ void _LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
         case 0:
             
             // send 4 msb first
-            for (int i = 0; i < 4; i++) { 
+            for (int i = 0; i < 4; i++) {
+                
                 change_io_bit(PORTD, lcd->_data_bus[i], ((message >> (i+4)) & 1));
+                
             }
             
             _LCDbeginTransfer(lcd);
             
             // send 4 lsb last
-            for (int i = 0; i < 4; i++) { 
+            for (int i = 0; i < 4; i++) {
+                
                 change_io_bit(PORTD, lcd->_data_bus[i], ((message >> i) & 1));
+                
             }
             
             _LCDbeginTransfer(lcd);
@@ -414,8 +418,10 @@ void _LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
         // 8 bit bus
         default:
             
-            for (int i = 0; i < 8; i++) { 
+            for (int i = 0; i < 8; i++) {
+                
                 change_io_bit(PORTD, lcd->_data_bus[i], ((message >> i) & 1));
+                
             }
             
             _LCDbeginTransfer(lcd);
