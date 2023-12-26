@@ -13,6 +13,7 @@ AVRDUDEFLAGS = -C /etc/avrdude.conf -v -p $(MCU) -c $(PROGRAMMER) -b $(BAUD) -P 
 
 MAINFILENAME = main
 LCDFILENAME  = lcd
+RTCFILENAME  = ds1302
 
 
 default: compile link converttohex upload clean
@@ -22,11 +23,12 @@ compile: $(MAINFILENAME).c $(LCDFILENAME).c $(LCDFILENAME).h
 
 	avr-gcc $(CFLAGS) $(MAINFILENAME).c -o $(MAINFILENAME).o
 	avr-gcc $(CFLAGS) $(LCDFILENAME).c -o $(LCDFILENAME).o
+	avr-gcc $(CFLAGS) $(RTCFILENAME).c -o $(RTCFILENAME).o
 
 
-link: $(MAINFILENAME).o $(LCDFILENAME).o
+link: $(MAINFILENAME).o $(LCDFILENAME).o $(RTCFILENAME).o
 	
-	avr-gcc $(LFLAGS) $(MAINFILENAME).o $(LCDFILENAME).o -o $(MAINFILENAME).elf
+	avr-gcc $(LFLAGS) $(MAINFILENAME).o $(LCDFILENAME).o $(RTCFILENAME).o -o $(MAINFILENAME).elf
 
 
 converttohex: $(MAINFILENAME).elf
