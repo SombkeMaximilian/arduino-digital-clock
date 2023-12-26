@@ -42,7 +42,39 @@ void DS1302init(DS1302 * ds1302) {
 
 
 // -------------------------------------------------- //
-// reads 1 byte from DS1302
+// reads time data from DS1302
+
+void readTimeData(DS1302data * data) {}
+
+
+// -------------------------------------------------- //
+// writes time data to DS1302
+
+void writeTimeData(DS1302data * data) {}
+
+
+// -------------------------------------------------- //
+// begins communication with the DS1302 with a command
+// bit 7 must be high
+// bit 6 specifies time data (0) or RAM data (1)
+// bit 5-1 specify designated register (addr)
+// bit 0 specifies read (1) or write (0) operation
+
+void _DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir) {
+    
+    _DS1302setIOdir(ds1302, 1);
+    _DS1302setCEpin(ds1302, 1);
+    
+    uint8_t message = (1 << 7) | ~dir | addr;
+    _DS1302write(ds1302, message);
+    
+    DS1302setIOdir(ds1302, dir);
+    
+}
+
+
+// -------------------------------------------------- //
+// reads and returns 1 byte from DS1302
 
 uint8_t _DS1302read(DS1302 * ds1302) {
     

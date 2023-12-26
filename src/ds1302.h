@@ -74,12 +74,20 @@ void DS1302init(DS1302 * ds1302);
 
 
 // ------------------------------------------------------------ //
-// functions for communicating with the chip
+// user commands for interacting with DS1302
 
+void readTimeData(DS1302data * data);
+void writeTimeData(DS1302data * data);
+
+
+// ------------------------------------------------------------ //
+// functions for communicating with DS1302
+
+void _DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir);
 uint8_t _DS1302read(DS1302 * ds1302);
 void _DS1302write(DS1302 * ds1302, uint8_t message);
 void _DS1302setIOdir(DS1302 * ds1302, uint8_t dir);
-void _DS1302setCE(DS1302 * ds1302, uint8_t value);
+void _DS1302setCEpin(DS1302 * ds1302, uint8_t value);
 void _DS1302clockPulse(DS1302 * ds1302);
 
 # endif
