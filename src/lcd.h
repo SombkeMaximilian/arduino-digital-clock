@@ -28,10 +28,10 @@
 # define MASK_SETDDRAMADDR          (1 << DB7)
 
 // flags for ENTRYMODESET
-# define FLAG_ENTRY_SHIFTCURSORRIGHT     (1 << DB1)
-# define FLAG_ENTRY_SHIFTCURSORLEFT     ~(1 << DB1)
-# define FLAG_ENTRY_AUTOSHIFT            (1 << DB0)
-# define FLAG_ENTRY_NOAUTOSHIFT         ~(1 << DB0)
+# define FLAG_ENTRY_SHIFTCURSORRIGHT    (1 << DB1)
+# define FLAG_ENTRY_SHIFTCURSORLEFT    ~(1 << DB1)
+# define FLAG_ENTRY_AUTOSHIFT           (1 << DB0)
+# define FLAG_ENTRY_NOAUTOSHIFT        ~(1 << DB0)
 
 // flags for DISPLAYCONTROL
 # define FLAG_DISPLAYCONTROL_DISPLAYON     (1 << DB2)
