@@ -68,7 +68,7 @@ typedef struct LCD {
     uint8_t _data_bus[8];
     
     // commands to send upon initializing
-    uint8_t _displaymode;
+    uint8_t _entrymode;
     uint8_t _displaycontrol;
     uint8_t _displayfunction;
     
@@ -83,42 +83,42 @@ typedef struct LCD {
 // ------------------------------------------------------------ //
 // initialization and configuration of the LCD
 
-void config(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
-            uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-            uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
-void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows, 
-          uint8_t cols);
+void LCDconfig(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
+               uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
+               uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
+void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows, 
+             uint8_t cols);
 
 
 // ------------------------------------------------------------ //
 // user commands for interacting with the LCD
 
-void clearDisplay(LCD * lcd);
-void returnHome(LCD * lcd);
+void LCDclearDisplay(LCD * lcd);
+void LCDreturnHome(LCD * lcd);
 
 // entry mode
-void textLeftToRight(LCD * lcd);
-void textRightToLeft(LCD * lcd);
-void autoShiftOn(LCD * lcd);
-void autoShiftOff(LCD * lcd);
+void LCDtextLeftToRight(LCD * lcd);
+void LCDtextRightToLeft(LCD * lcd);
+void LCDautoShiftOn(LCD * lcd);
+void LCDautoShiftOff(LCD * lcd);
 
 // display control
-void displayOn(LCD * lcd);
-void displayOff(LCD * lcd);
-void cursorOn(LCD * lcd);
-void cursorOff(LCD * lcd);
-void blinkOn(LCD * lcd);
-void blinkOff(LCD * lcd);
+void LCDdisplayOn(LCD * lcd);
+void LCDdisplayOff(LCD * lcd);
+void LCDcursorOn(LCD * lcd);
+void LCDcursorOff(LCD * lcd);
+void LCDblinkOn(LCD * lcd);
+void LCDblinkOff(LCD * lcd);
 
 // cursor & display shift
-void shiftCursorLeft(LCD * lcd);
-void shiftCursorRight(LCD * lcd);
-void shiftDisplayLeft(LCD * lcd);
-void shiftDisplayRight(LCD * lcd);
+void LCDshiftCursorLeft(LCD * lcd);
+void LCDshiftCursorRight(LCD * lcd);
+void LCDshiftDisplayLeft(LCD * lcd);
+void LCDshiftDisplayRight(LCD * lcd);
 
 // cursor position & custom characters
-void customCharacter();
-void setCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col);
+void LCDcustomCharacter();
+void LCDsetCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col);
 
 // send commands or data to the LCD
 void LCDcommand(LCD * lcd, uint8_t command);
@@ -128,7 +128,7 @@ void LCDprint(LCD * lcd, char * data);
 // ------------------------------------------------------------ //
 // functions for communicating via the data bus
 
-void _send(LCD * lcd, uint8_t message, uint8_t type);
-void _enablePulse(LCD * lcd);
+void _LCDsend(LCD * lcd, uint8_t message, uint8_t type);
+void _LCDbeginTransfer(LCD * lcd);
 
 # endif

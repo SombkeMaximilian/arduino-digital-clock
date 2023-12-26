@@ -24,9 +24,9 @@
 // en = enable pin
 // d0-7 = data pins
 
-void config(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
-            uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-            uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
+void LCDconfig(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
+               uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
+               uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
     
     // control pins
     lcd->_rs_pin = rs;
@@ -57,8 +57,8 @@ void config(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
 // no display shift
 // small characters (5x8dot)
 
-void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows, 
-          uint8_t cols) {
+void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows, 
+             uint8_t cols) {
     
     // number of lines and columns, and addresses of the first column in each row
     lcd->_rows = rows;
@@ -67,13 +67,13 @@ void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
     lcd->_row_offset[1] = 0x40;
     
     // commands without parameters
-    lcd->_displaymode     = MASK_ENTRYMODESET;
+    lcd->_entrymode       = MASK_ENTRYMODESET;
     lcd->_displaycontrol  = MASK_DISPLAYCONTROL;
     lcd->_displayfunction = MASK_FUNCTIONSET;
     
     // displaymode default settings
-    lcd->_displaymode |= FLAG_ENTRY_SHIFTCURSORRIGHT;
-    lcd->_displaymode &= FLAG_ENTRY_NOAUTOSHIFT;
+    lcd->_entrymode |= FLAG_ENTRY_SHIFTCURSORRIGHT;
+    lcd->_entrymode &= FLAG_ENTRY_NOAUTOSHIFT;
     
     // displaycontrol default settings
     lcd->_displaycontrol |= FLAG_DISPLAYCONTROL_DISPLAYON;
@@ -115,16 +115,11 @@ void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
     lcd->_displayfunction &= FLAG_FUNCTIONSET_5x8DOT;
     
     // send the commands
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 16; j++) {
-            setCursorPosition(lcd, i, j);
-        }
-    }
-    
-    // send the commands
     LCDcommand(lcd, lcd->_displayfunction);
     LCDcommand(lcd, lcd->_displaycontrol);
-    LCDcommand(lcd, lcd->_displaymode);
+    LCDcommand(lcd, lcd->_entrymode);
+    LCDclearDisplay(lcd);
+    LCDreturnHome(lcd);
     
     // initialize according to the datasheet (page 44-45)
     // TBD
@@ -134,9 +129,10 @@ void init(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
 // -------------------------------------------------- //
 // clear the display and return cursor to position 0
 
-void clearDisplay(LCD * lcd) {
+void LCDclearDisplay(LCD * lcd) {
     
     LCDcommand(lcd, MASK_CLEARDISPLAY);
+    _delay_ms(2);
     
 }
 
@@ -144,9 +140,10 @@ void clearDisplay(LCD * lcd) {
 // -------------------------------------------------- //
 // return cursor to position 0
 
-void returnHome(LCD * lcd) {
+void LCDreturnHome(LCD * lcd) {
     
     LCDcommand(lcd, MASK_RETURNHOME);
+    _delay_ms(2);
     
 }
 
@@ -154,10 +151,10 @@ void returnHome(LCD * lcd) {
 // -------------------------------------------------- //
 // text goes from left to right
 
-void textLeftToRight(LCD * lcd) {
+void LCDtextLeftToRight(LCD * lcd) {
     
-    lcd->_displaymode |= FLAG_ENTRY_SHIFTCURSORRIGHT;
-    LCDcommand(lcd, lcd->_displaymode);
+    lcd->_entrymode |= FLAG_ENTRY_SHIFTCURSORRIGHT;
+    LCDcommand(lcd, lcd->_entrymode);
     
 }
 
@@ -165,10 +162,10 @@ void textLeftToRight(LCD * lcd) {
 // -------------------------------------------------- //
 // text goes from right to left
 
-void textRightToLeft(LCD * lcd) {
+void LCDtextRightToLeft(LCD * lcd) {
     
-    lcd->_displaymode &= FLAG_ENTRY_SHIFTCURSORLEFT;
-    LCDcommand(lcd, lcd->_displaymode);
+    lcd->_entrymode &= FLAG_ENTRY_SHIFTCURSORLEFT;
+    LCDcommand(lcd, lcd->_entrymode);
     
 }
 
@@ -177,10 +174,10 @@ void textRightToLeft(LCD * lcd) {
 // entire display is shifted on DDRAM write operation
 // the shift direction depends on text direction
 
-void autoShiftOn(LCD * lcd) {
+void LCDautoShiftOn(LCD * lcd) {
     
-    lcd->_displaymode |= FLAG_ENTRY_AUTOSHIFT;
-    LCDcommand(lcd, lcd->_displaymode);
+    lcd->_entrymode |= FLAG_ENTRY_AUTOSHIFT;
+    LCDcommand(lcd, lcd->_entrymode);
     
 }
 
@@ -188,10 +185,10 @@ void autoShiftOn(LCD * lcd) {
 // -------------------------------------------------- //
 // turn off auto shift
 
-void autoShiftOff(LCD * lcd) {
+void LCDautoShiftOff(LCD * lcd) {
     
-    lcd->_displaymode &= FLAG_ENTRY_NOAUTOSHIFT;
-    LCDcommand(lcd, lcd->_displaymode);
+    lcd->_entrymode &= FLAG_ENTRY_NOAUTOSHIFT;
+    LCDcommand(lcd, lcd->_entrymode);
     
 }
 
@@ -199,7 +196,7 @@ void autoShiftOff(LCD * lcd) {
 // -------------------------------------------------- //
 // turn display on
 
-void displayOn(LCD * lcd) {
+void LCDdisplayOn(LCD * lcd) {
     
     lcd->_displaycontrol |= FLAG_DISPLAYCONTROL_DISPLAYON;
     LCDcommand(lcd, lcd->_displaycontrol);
@@ -210,7 +207,7 @@ void displayOn(LCD * lcd) {
 // -------------------------------------------------- //
 // turn display off
 
-void displayOff(LCD * lcd) {
+void LCDdisplayOff(LCD * lcd) {
     
     lcd->_displaycontrol &= FLAG_DISPLAYCONTROL_DISPLAYOFF;
     LCDcommand(lcd, lcd->_displaycontrol);
@@ -221,7 +218,7 @@ void displayOff(LCD * lcd) {
 // -------------------------------------------------- //
 // turn cursor on
 
-void cursorOn(LCD * lcd) {
+void LCDcursorOn(LCD * lcd) {
     
     lcd->_displaycontrol |= FLAG_DISPLAYCONTROL_CURSORON;
     LCDcommand(lcd, lcd->_displaycontrol);
@@ -232,7 +229,7 @@ void cursorOn(LCD * lcd) {
 // -------------------------------------------------- //
 // turn cursor off
 
-void cursorOff(LCD * lcd) {
+void LCDcursorOff(LCD * lcd) {
     
     lcd->_displaycontrol &= FLAG_DISPLAYCONTROL_CURSOROFF;
     LCDcommand(lcd, lcd->_displaycontrol);
@@ -243,7 +240,7 @@ void cursorOff(LCD * lcd) {
 // -------------------------------------------------- //
 // turn cursor blink on
 
-void blinkOn(LCD * lcd) {
+void LCDblinkOn(LCD * lcd) {
     
     lcd->_displaycontrol |= FLAG_DISPLAYCONTROL_BLINKON;
     LCDcommand(lcd, lcd->_displaycontrol);
@@ -254,7 +251,7 @@ void blinkOn(LCD * lcd) {
 // -------------------------------------------------- //
 // turn cursor blink off
 
-void blinkOff(LCD * lcd) {
+void LCDblinkOff(LCD * lcd) {
     
     lcd->_displaycontrol &= FLAG_DISPLAYCONTROL_BLINKOFF;
     LCDcommand(lcd, lcd->_displaycontrol);
@@ -265,7 +262,7 @@ void blinkOff(LCD * lcd) {
 // -------------------------------------------------- //
 // shift cursor to the left, decrease address counter
 
-void shiftCursorLeft(LCD * lcd) {
+void LCDshiftCursorLeft(LCD * lcd) {
     
     LCDcommand(lcd, (MASK_DISPLAYCURSORSHIFT & FLAG_DISPLAYCURSORSHIFT_SHIFTCURSOR) & FLAG_DISPLAYCURSORSHIFT_SHIFTLEFT);
     
@@ -275,7 +272,7 @@ void shiftCursorLeft(LCD * lcd) {
 // -------------------------------------------------- //
 // shift cursor to the right, increase address counter
 
-void shiftCursorRight(LCD * lcd) {
+void LCDshiftCursorRight(LCD * lcd) {
     
     LCDcommand(lcd, (MASK_DISPLAYCURSORSHIFT & FLAG_DISPLAYCURSORSHIFT_SHIFTCURSOR) | FLAG_DISPLAYCURSORSHIFT_SHIFTRIGHT);
     
@@ -286,7 +283,7 @@ void shiftCursorRight(LCD * lcd) {
 // shift entire display to the left, cursor moves
 // according to the display
 
-void shiftDisplayLeft(LCD * lcd) {
+void LCDshiftDisplayLeft(LCD * lcd) {
     
     LCDcommand(lcd, (MASK_DISPLAYCURSORSHIFT | FLAG_DISPLAYCURSORSHIFT_SHIFTDISPLAY) & FLAG_DISPLAYCURSORSHIFT_SHIFTLEFT);
     
@@ -297,7 +294,7 @@ void shiftDisplayLeft(LCD * lcd) {
 // shift entire display to the right, cursor moves
 // according to the display
 
-void shiftDisplayRight(LCD * lcd) {
+void LCDshiftDisplayRight(LCD * lcd) {
     
     LCDcommand(lcd, (MASK_DISPLAYCURSORSHIFT | FLAG_DISPLAYCURSORSHIFT_SHIFTDISPLAY) | FLAG_DISPLAYCURSORSHIFT_SHIFTRIGHT);
     
@@ -307,14 +304,14 @@ void shiftDisplayRight(LCD * lcd) {
 // -------------------------------------------------- //
 // create a custom character
 
-void customCharacter(); // TBD
+void LCDcustomCharacter(); // TBD
 
 
 // -------------------------------------------------- //
 // set the cursor to a position by setting the address 
 // counter to the corresponding DDRAM address
 
-void setCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col) {
+void LCDsetCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col) {
     
     if (target_row < 0) {
         
@@ -346,7 +343,7 @@ void setCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col) {
 
 void LCDcommand(LCD * lcd, uint8_t command) {
     
-    _send(lcd, command, 0);
+    _LCDsend(lcd, command, 0);
     
 }
 
@@ -356,7 +353,7 @@ void LCDcommand(LCD * lcd, uint8_t command) {
 
 void LCDcharacter(LCD * lcd, uint8_t data) {
     
-    _send(lcd, data, 1);
+    _LCDsend(lcd, data, 1);
     
 }
 
@@ -378,7 +375,7 @@ void LCDprint(LCD * lcd, char * data) {
 // -------------------------------------------------- //
 // sends 1 byte to the LCD
 
-void _send(LCD * lcd, uint8_t message, uint8_t type) {
+void _LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
     
     // set the rs pin 
     switch (type) {
@@ -410,14 +407,14 @@ void _send(LCD * lcd, uint8_t message, uint8_t type) {
                 change_io_bit(PORTD, lcd->_data_bus[i], ((message >> (i+4)) & 1));
             }
             
-            _enablePulse(lcd);
+            _LCDbeginTransfer(lcd);
             
             // send 4 lsb last
             for (int i = 0; i < 4; i++) { 
                 change_io_bit(PORTD, lcd->_data_bus[i], ((message >> i) & 1));
             }
             
-            _enablePulse(lcd);
+            _LCDbeginTransfer(lcd);
             
             break;
         
@@ -428,7 +425,7 @@ void _send(LCD * lcd, uint8_t message, uint8_t type) {
                 change_io_bit(PORTD, lcd->_data_bus[i], ((message >> i) & 1));
             }
             
-            _enablePulse(lcd);
+            _LCDbeginTransfer(lcd);
             
             break;
             
@@ -440,7 +437,7 @@ void _send(LCD * lcd, uint8_t message, uint8_t type) {
 // -------------------------------------------------- //
 // sends a pulse to the enable pin
 
-void _enablePulse(LCD * lcd) {
+void _LCDbeginTransfer(LCD * lcd) {
     
     // 1. pull the pin low and wait for the LCD
     clear_io_bit(PORTB, lcd->_en_pin);
@@ -448,7 +445,7 @@ void _enablePulse(LCD * lcd) {
     
     // 2. pull it high, the enable pulse needs to be >500ns
     set_io_bit(PORTB, lcd->_en_pin);
-    _delay_us(2);
+    _delay_us(1);
     
     // 3. pull it low again and wait for the LCD (>40 us)
     clear_io_bit(PORTB, lcd->_en_pin);
