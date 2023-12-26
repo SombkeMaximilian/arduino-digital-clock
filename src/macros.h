@@ -7,6 +7,7 @@
 # define set_io_bit(reg, bit) (reg |= (1 << bit))
 # define clear_io_bit(reg, bit) (reg &= ~(1 << bit))
 # define change_io_bit(reg, bit, value) (value == 1) ? set_io_bit(reg, bit) : clear_io_bit(reg, bit);
+# define flip_io_bit(reg, bit) (reg ^= (1 << bit))
 # define get_io_bit(reg, bit) (reg & (1 << bit))
 
 
