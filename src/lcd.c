@@ -6,7 +6,7 @@
 # include <util/delay.h>
 
 # include "lcd.h"
-# include "registermacros.h"
+# include "macros.h"
 
 
 // -------------------------------------------------- //
