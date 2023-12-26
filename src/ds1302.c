@@ -9,6 +9,12 @@
 # include "macros.h"
 
 
+// ------------------------------------------------------------ //
+// fetches system time and stores it in the data struct
+
+void generateDS1302data(DS1302data * data) {}
+
+
 // -------------------------------------------------- //
 // configure the DS1302 pins
 // 
@@ -43,14 +49,61 @@ void DS1302init(DS1302 * ds1302) {
 
 // -------------------------------------------------- //
 // reads time data from DS1302
+// internally the data is in bcd format so we need to
+// convert it to decimal
+// uses burst mode (datasheet page 8)
 
-void readTimeData(DS1302data * data) {}
+void readTimeData(DS1302 * ds1302, DS1302data * data) {
+    
+    // begin communication in burst mode
+    _DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 0);
+    
+    // fetch the data
+    data->second    = bcd_to_dec((_DS1302read(ds1302) & MASK_SECOND));
+    data->minute    = bcd_to_dec((_DS1302read(ds1302) & MASK_MINUTE));
+    data->hour      = bcd_to_dec((_DS1302read(ds1302) & MASK_HOUR));
+    data->day       = bcd_to_dec((_DS1302read(ds1302) & MASK_DAY));
+    data->month     = bcd_to_dec((_DS1302read(ds1302) & MASK_MONTH));
+    data->dayofweek = bcd_to_dec((_DS1302read(ds1302) & MASK_DAYOFWEEK));
+    data->year      = bcd_to_dec((_DS1302read(ds1302)));
+    
+    // end communication
+    _DS1302setCEpin(ds1302, 0);
+    
+}
 
 
 // -------------------------------------------------- //
 // writes time data to DS1302
+// data in decimal needs to be converted to bcd format
+// uses burst mode (datasheet page 8)
 
-void writeTimeData(DS1302data * data) {}
+void writeTimeData(DS1302 * ds1302, DS1302data * data) {
+    
+    // clear write protection flag
+    _DS1302beginCommunication(ds1302, REGISTER_WP, 1);
+    _DS1302write(ds1302, 0);
+    _DS1302setCEpin(ds1302, 0);
+    
+    // begin communication in burst mode
+    _DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 1);
+    
+    // write the data
+    _DS1302write(ds1302, dec_to_bcd(data->second));
+    _DS1302write(ds1302, dec_to_bcd(data->minute));
+    _DS1302write(ds1302, dec_to_bcd(data->hour));
+    _DS1302write(ds1302, dec_to_bcd(data->day));
+    _DS1302write(ds1302, dec_to_bcd(data->month));
+    _DS1302write(ds1302, dec_to_bcd(data->dayofweek));
+    _DS1302write(ds1302, dec_to_bcd(data->year));
+    
+    // set write protection flag again
+    _DS1302write(ds1302, FLAG_WRITEPROTECT);
+    
+    // end communication
+    _DS1302setCEpin(ds1302, 0);
+    
+}
 
 
 // -------------------------------------------------- //
@@ -68,7 +121,7 @@ void _DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir) {
     uint8_t message = (1 << 7) | ~dir | addr;
     _DS1302write(ds1302, message);
     
-    DS1302setIOdir(ds1302, dir);
+    _DS1302setIOdir(ds1302, dir);
     
 }
 
@@ -128,7 +181,7 @@ void _DS1302setIOdir(DS1302 * ds1302, uint8_t dir) {
 // -------------------------------------------------- //
 // set the CE pin
 
-void _DS1302setCE(DS1302 * ds1302, uint8_t value) {
+void _DS1302setCEpin(DS1302 * ds1302, uint8_t value) {
     
     change_io_bit(PORTB, ds1302->_ce_pin, value);
     

@@ -15,8 +15,36 @@
 # define REGISTER_CLOCKBURST    0xBE
 
 
+// -------------------------------------------------- //
+// register data extraction masks (datasheet page 9)
+
+# define MASK_SECOND      ~(1 << 7)
+# define MASK_MINUTE      ~(1 << 7)
+# define MASK_HOUR        ~((1 << 7) | (1 << 6))
+# define MASK_DAY         ~((1 << 7) | (1 << 6))
+# define MASK_MONTH       ~((1 << 7) | (1 << 6) | (1 << 5))
+# define MASK_DAYOFWEEK    ((1 << 2) | (1 << 1) | (1 << 0))
+
+
+// -------------------------------------------------- //
+// flags
+
+# define FLAG_CLOCKHALT       (1 << 7)
+# define FLAG_WRITEPROTECT    (1 << 7)
+
+
 // ------------------------------------------------------------ //
-// defining months
+// defining months and days
+
+enum daysofweek {
+    MON = 1,
+    TUE = 2,
+    WED = 3,
+    THU = 4,
+    FRI = 5,
+    SAT = 6,
+    SUN = 7
+};
 
 enum month {
     JAN = 1,
@@ -39,13 +67,13 @@ enum month {
 
 typedef struct DS1302data {
     
-    // time
-    uint8_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t hour;
-    uint8_t minute;
     uint8_t second;
+    uint8_t minute;
+    uint8_t hour;
+    uint8_t day;
+    uint8_t month;
+    uint8_t dayofweek;
+    uint8_t year;
     
 } DS1302data;
 
@@ -67,6 +95,12 @@ typedef struct DS1302 {
 
 
 // ------------------------------------------------------------ //
+// function for getting time and date from system
+
+void generateDS1302data(DS1302data * data);
+
+
+// ------------------------------------------------------------ //
 // initialization and configuration of DS1302
 
 void DS1302config(DS1302 * ds1302, uint8_t ce, uint8_t io, uint8_t clk);
@@ -76,8 +110,8 @@ void DS1302init(DS1302 * ds1302);
 // ------------------------------------------------------------ //
 // user commands for interacting with DS1302
 
-void readTimeData(DS1302data * data);
-void writeTimeData(DS1302data * data);
+void readTimeData(DS1302 * ds1302, DS1302data * data);
+void writeTimeData(DS1302 * ds1302, DS1302data * data);
 
 
 // ------------------------------------------------------------ //
