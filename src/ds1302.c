@@ -35,8 +35,8 @@ void DS1302config(DS1302 * ds1302, uint8_t ce, uint8_t io, uint8_t clk) {
 void DS1302init(DS1302 * ds1302) {
     
     // chip enable off and no clock signal (kept low)
-    set_io_bit(PORTB, ds1302->_ce_pin);
-    set_io_bit(PORTB, ds1302->_clk_pin);
+    clear_io_bit(PORTB, ds1302->_ce_pin);
+    clear_io_bit(PORTB, ds1302->_clk_pin);
     
 }
 
