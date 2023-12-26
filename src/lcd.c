@@ -1,19 +1,12 @@
 // -------------------------------------------------- //
 // dependencies
 
-# include <string.h>
 # include <avr/io.h>
 # include <avr/interrupt.h>
 # include <util/delay.h>
 
 # include "lcd.h"
-
-// ------------------------------------------------------------ //
-// macros for bit manipulation of IO registers
-
-# define set_io_bit(port, bit) (port |= (1 << bit))
-# define clear_io_bit(port, bit) (port &= ~(1 << bit))
-# define change_io_bit(port, bit, value) (value == 1) ? set_io_bit(port, bit) : clear_io_bit(port, bit);
+# include "registermacros.h"
 
 
 // -------------------------------------------------- //
