@@ -31,6 +31,8 @@
 
 # define FLAG_CLOCKHALT       (1 << 7)
 # define FLAG_WRITEPROTECT    (1 << 7)
+# define FLAG_12HOURMODE      (1 << 7)
+# define FLAG_24HOURMODE     ~(1 << 7)
 
 
 // ------------------------------------------------------------ //
@@ -91,6 +93,9 @@ typedef struct DS1302 {
     // current direction of io pin
     uint8_t _io_dir;
     
+    // clock mode (1 = 12h, 0 = 24h)
+    uint8_t _clockmode;
+    
 } DS1302;
 
 
@@ -112,6 +117,7 @@ void DS1302init(DS1302 * ds1302);
 
 void DS1302readTimeData(DS1302 * ds1302, timeData * data);
 void DS1302writeTimeData(DS1302 * ds1302, timeData * data);
+void DS1302setClockMode(DS1302 * ds1302, uint8_t mode);
 
 
 // ------------------------------------------------------------ //

@@ -156,6 +156,47 @@ void writeTimeData(DS1302 * ds1302, timeData * data) {
 
 
 // -------------------------------------------------- //
+// changes the clock into 12h or 24h mode
+
+void DS1302setClockMode(DS1302 * ds1302, uint8_t mode) {
+    
+    uint8_t hour;
+    
+    // clear write protection flag
+    DS1302beginCommunication(ds1302, REGISTER_HOUR, 1);
+    DS1302write(ds1302, 0);
+    DS1302setCEpin(ds1302, 0);
+    
+    // read the current hour data
+    DS1302beginCommunication(ds1302, REGISTER_HOUR, 0);
+    hour = DS1302read(ds1302);
+    DS1302setCEpin(ds1302, 0);
+    
+    // set clock mode flag (bit 7)
+    ds1302->_clockmode = mode;
+    switch (ds1302->_clockmode) {
+        
+        case 0:
+            
+            hour &= FLAG_24HOURMODE;
+            break;
+        
+        case 1:
+            
+            hour |= FLAG_12HOURMODE;
+            break;
+        
+    }
+    
+    // write the hour data back
+    DS1302beginCommunication(ds1302, REGISTER_HOUR, 0);
+    DS1302write(ds1302, hour);
+    DS1302setCEpin(ds1302, 0);
+    
+}
+
+
+// -------------------------------------------------- //
 // begins communication with the DS1302 with a command
 // bit 7 must be high
 // bit 6 specifies time data (0) or RAM data (1)
