@@ -65,7 +65,7 @@ enum month {
 // ------------------------------------------------------------ //
 // struct for storing time data
 
-typedef struct DS1302data {
+typedef struct timeData {
     
     uint8_t second;
     uint8_t minute;
@@ -75,7 +75,7 @@ typedef struct DS1302data {
     uint8_t dayofweek;
     uint8_t year;
     
-} DS1302data;
+} timeData;
 
 
 // ------------------------------------------------------------ //
@@ -95,10 +95,10 @@ typedef struct DS1302 {
 
 
 // ------------------------------------------------------------ //
-// function for getting time and date from system
+// functions for generating and storing the time data
 
-void generateDS1302data(DS1302data * data);
-
+int DS1302Dayofweekfromdate(int d, int m, int y);
+void DS1302TimeDataInit(timeData * data, const char * date, const char * time);
 
 // ------------------------------------------------------------ //
 // initialization and configuration of DS1302
@@ -110,18 +110,18 @@ void DS1302init(DS1302 * ds1302);
 // ------------------------------------------------------------ //
 // user commands for interacting with DS1302
 
-void readTimeData(DS1302 * ds1302, DS1302data * data);
-void writeTimeData(DS1302 * ds1302, DS1302data * data);
+void DS1302readTimeData(DS1302 * ds1302, timeData * data);
+void DS1302writeTimeData(DS1302 * ds1302, timeData * data);
 
 
 // ------------------------------------------------------------ //
 // functions for communicating with DS1302
 
-void _DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir);
-uint8_t _DS1302read(DS1302 * ds1302);
-void _DS1302write(DS1302 * ds1302, uint8_t message);
-void _DS1302setIOdir(DS1302 * ds1302, uint8_t dir);
-void _DS1302setCEpin(DS1302 * ds1302, uint8_t value);
-void _DS1302clockPulse(DS1302 * ds1302);
+void DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir);
+uint8_t DS1302read(DS1302 * ds1302);
+void DS1302write(DS1302 * ds1302, uint8_t message);
+void DS1302setIOdir(DS1302 * ds1302, uint8_t dir);
+void DS1302setCEpin(DS1302 * ds1302, uint8_t value);
+void DS1302clockPulse(DS1302 * ds1302);
 
 # endif

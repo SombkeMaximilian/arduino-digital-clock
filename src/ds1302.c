@@ -1,7 +1,10 @@
 // -------------------------------------------------- //
 // dependencies
 
+# include <stdio.h>
+# include <stdlib.h>
 # include <stdint.h>
+# include <string.h>
 # include <avr/io.h>
 # include <util/delay.h>
 
@@ -10,9 +13,55 @@
 
 
 // ------------------------------------------------------------ //
-// fetches system time and stores it in the data struct
+// takes a date and calculates the day of the week from it
+// sunday = 1, ..., saturday = 7
+// http://www.cadaeic.net/calendar.htm (modified to be 1 indexed)
 
-void generateDS1302data(DS1302data * data) {}
+
+int DS1302DayOfWeekFromDate(int d, int m, int y) {
+    
+    return (d += m < 3 ? y-- : y - 2, 23*m/9 + d + 4 + y/4- y/100 + y/400)%7;
+    
+}
+
+
+// ------------------------------------------------------------ //
+// takes time and date as a format string input and stores it
+// in the data struct
+// example "Dec 28 2023" and "05:01:20"
+// use __TIME__ and __DATE__ to get compile timestamp
+
+void DS1302TimeDataInit(timeData * data, const char * date, const char * time) {
+    
+    static const char * monthStrings[] = {
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+        "Oct", "Nov", "Dec", NULL
+    };
+    int hour, minute, second, day, year;
+    char monthtext[4];
+    
+    // parse the strings and extract data
+    sscanf(time, "%d:%d:%d", &hour, &minute, &second);
+    sscanf(date, "%s %d %d", monthtext, &day, &year);
+    
+    // fill in the data
+    data->second = second;
+    data->minute = minute;
+    data->hour   = hour;
+    data->day    = day;
+    data->year   = year-(year/100 * 100);
+    
+    // translate month names into numbers 1-12
+    for (int i = 0; monthStrings[i] != NULL; i++) {
+        if (strcmp(monthStrings[i], monthtext) == 0) {
+            data->month = i+1;
+        }
+    }
+    
+    // get the day of the week
+    data->dayofweek = dayOfWeekFromDate((int) data->day, (int) data->month, (int) data->year);
+    
+}
 
 
 // -------------------------------------------------- //
@@ -53,22 +102,22 @@ void DS1302init(DS1302 * ds1302) {
 // convert it to decimal
 // uses burst mode (datasheet page 8)
 
-void readTimeData(DS1302 * ds1302, DS1302data * data) {
+void readTimeData(DS1302 * ds1302, timeData * data) {
     
     // begin communication in burst mode
-    _DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 0);
+    DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 0);
     
     // fetch the data
-    data->second    = bcd_to_dec((_DS1302read(ds1302) & MASK_SECOND));
-    data->minute    = bcd_to_dec((_DS1302read(ds1302) & MASK_MINUTE));
-    data->hour      = bcd_to_dec((_DS1302read(ds1302) & MASK_HOUR));
-    data->day       = bcd_to_dec((_DS1302read(ds1302) & MASK_DAY));
-    data->month     = bcd_to_dec((_DS1302read(ds1302) & MASK_MONTH));
-    data->dayofweek = bcd_to_dec((_DS1302read(ds1302) & MASK_DAYOFWEEK));
-    data->year      = bcd_to_dec((_DS1302read(ds1302)));
+    data->second    = bcd_to_dec((DS1302read(ds1302) & MASK_SECOND));
+    data->minute    = bcd_to_dec((DS1302read(ds1302) & MASK_MINUTE));
+    data->hour      = bcd_to_dec((DS1302read(ds1302) & MASK_HOUR));
+    data->day       = bcd_to_dec((DS1302read(ds1302) & MASK_DAY));
+    data->month     = bcd_to_dec((DS1302read(ds1302) & MASK_MONTH));
+    data->dayofweek = bcd_to_dec((DS1302read(ds1302) & MASK_DAYOFWEEK));
+    data->year      = bcd_to_dec((DS1302read(ds1302)));
     
     // end communication
-    _DS1302setCEpin(ds1302, 0);
+    DS1302setCEpin(ds1302, 0);
     
 }
 
@@ -78,30 +127,30 @@ void readTimeData(DS1302 * ds1302, DS1302data * data) {
 // data in decimal needs to be converted to bcd format
 // uses burst mode (datasheet page 8)
 
-void writeTimeData(DS1302 * ds1302, DS1302data * data) {
+void writeTimeData(DS1302 * ds1302, timeData * data) {
     
     // clear write protection flag
-    _DS1302beginCommunication(ds1302, REGISTER_WP, 1);
-    _DS1302write(ds1302, 0);
-    _DS1302setCEpin(ds1302, 0);
+    DS1302beginCommunication(ds1302, REGISTER_WP, 1);
+    DS1302write(ds1302, 0);
+    DS1302setCEpin(ds1302, 0);
     
     // begin communication in burst mode
-    _DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 1);
+    DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 1);
     
     // write the data
-    _DS1302write(ds1302, dec_to_bcd(data->second));
-    _DS1302write(ds1302, dec_to_bcd(data->minute));
-    _DS1302write(ds1302, dec_to_bcd(data->hour));
-    _DS1302write(ds1302, dec_to_bcd(data->day));
-    _DS1302write(ds1302, dec_to_bcd(data->month));
-    _DS1302write(ds1302, dec_to_bcd(data->dayofweek));
-    _DS1302write(ds1302, dec_to_bcd(data->year));
+    DS1302write(ds1302, dec_to_bcd(data->second));
+    DS1302write(ds1302, dec_to_bcd(data->minute));
+    DS1302write(ds1302, dec_to_bcd(data->hour));
+    DS1302write(ds1302, dec_to_bcd(data->day));
+    DS1302write(ds1302, dec_to_bcd(data->month));
+    DS1302write(ds1302, dec_to_bcd(data->dayofweek));
+    DS1302write(ds1302, dec_to_bcd(data->year));
     
     // set write protection flag again
-    _DS1302write(ds1302, FLAG_WRITEPROTECT);
+    DS1302write(ds1302, FLAG_WRITEPROTECT);
     
     // end communication
-    _DS1302setCEpin(ds1302, 0);
+    DS1302setCEpin(ds1302, 0);
     
 }
 
@@ -113,15 +162,15 @@ void writeTimeData(DS1302 * ds1302, DS1302data * data) {
 // bit 5-1 specify designated register (addr)
 // bit 0 specifies read (1) or write (0) operation
 
-void _DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir) {
+void DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir) {
     
-    _DS1302setIOdir(ds1302, 1);
-    _DS1302setCEpin(ds1302, 1);
+    DS1302setIOdir(ds1302, 1);
+    DS1302setCEpin(ds1302, 1);
     
     uint8_t message = (1 << 7) | ~dir | addr;
-    _DS1302write(ds1302, message);
+    DS1302write(ds1302, message);
     
-    _DS1302setIOdir(ds1302, dir);
+    DS1302setIOdir(ds1302, dir);
     
 }
 
@@ -129,7 +178,7 @@ void _DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir) {
 // -------------------------------------------------- //
 // reads and returns 1 byte from DS1302
 
-uint8_t _DS1302read(DS1302 * ds1302) {
+uint8_t DS1302read(DS1302 * ds1302) {
     
     uint8_t buffer = 0;
     
@@ -141,7 +190,7 @@ uint8_t _DS1302read(DS1302 * ds1302) {
             
         }
         
-        _DS1302clockPulse(ds1302);
+        DS1302clockPulse(ds1302);
         
     }
     
@@ -153,12 +202,12 @@ uint8_t _DS1302read(DS1302 * ds1302) {
 // -------------------------------------------------- //
 // sends 1 byte to DS1302
 
-void _DS1302write(DS1302 * ds1302, uint8_t message) {
+void DS1302write(DS1302 * ds1302, uint8_t message) {
     
     for (int i = 0; i < 8; i++) {
         
         change_io_bit(PORTD, ds1302->_io_pin, ((message >> i) & 1));
-        _DS1302clockPulse(ds1302);
+        DS1302clockPulse(ds1302);
         
     }
     
@@ -170,7 +219,7 @@ void _DS1302write(DS1302 * ds1302, uint8_t message) {
 // 1 = write to DS1302
 // 0 = read from DS1302
 
-void _DS1302setIOdir(DS1302 * ds1302, uint8_t dir) {
+void DS1302setIOdir(DS1302 * ds1302, uint8_t dir) {
     
     ds1302->_io_dir = dir;
     change_io_bit(DDRD, ds1302->_io_pin, ds1302->_io_dir);
@@ -181,7 +230,7 @@ void _DS1302setIOdir(DS1302 * ds1302, uint8_t dir) {
 // -------------------------------------------------- //
 // set the CE pin
 
-void _DS1302setCEpin(DS1302 * ds1302, uint8_t value) {
+void DS1302setCEpin(DS1302 * ds1302, uint8_t value) {
     
     change_io_bit(PORTB, ds1302->_ce_pin, value);
     
@@ -193,7 +242,7 @@ void _DS1302setCEpin(DS1302 * ds1302, uint8_t value) {
 // rising edge = initiates write
 // falling edge = initiates read
 
-void _DS1302clockPulse(DS1302 * ds1302) {
+void DS1302clockPulse(DS1302 * ds1302) {
     
     set_io_bit(PORTB, ds1302->_clk_pin);
     _delay_us(1);
