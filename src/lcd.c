@@ -336,7 +336,7 @@ void LCDsetCursorPosition(LCD * lcd, uint8_t target_row, uint8_t target_col) {
 
 void LCDcommand(LCD * lcd, uint8_t command) {
     
-    _LCDsend(lcd, command, 0);
+    LCDsend(lcd, command, 0);
     
 }
 
@@ -346,7 +346,7 @@ void LCDcommand(LCD * lcd, uint8_t command) {
 
 void LCDcharacter(LCD * lcd, uint8_t data) {
     
-    _LCDsend(lcd, data, 1);
+    LCDsend(lcd, data, 1);
     
 }
 
@@ -368,7 +368,7 @@ void LCDprint(LCD * lcd, char * data) {
 // -------------------------------------------------- //
 // sends 1 byte to the LCD
 
-void _LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
+void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
     
     // set the rs pin 
     switch (type) {
@@ -402,7 +402,7 @@ void _LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            _LCDbeginTransfer(lcd);
+            LCDbeginTransfer(lcd);
             
             // send 4 lsb last
             for (int i = 0; i < 4; i++) {
@@ -411,7 +411,7 @@ void _LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            _LCDbeginTransfer(lcd);
+            LCDbeginTransfer(lcd);
             
             break;
         
@@ -424,7 +424,7 @@ void _LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            _LCDbeginTransfer(lcd);
+            LCDbeginTransfer(lcd);
             
             break;
             
@@ -436,7 +436,7 @@ void _LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
 // -------------------------------------------------- //
 // sends a pulse to the enable pin
 
-void _LCDbeginTransfer(LCD * lcd) {
+void LCDbeginTransfer(LCD * lcd) {
     
     // 1. pull the pin low and wait for the LCD
     clear_io_bit(PORTB, lcd->_en_pin);
