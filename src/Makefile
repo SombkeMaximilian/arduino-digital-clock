@@ -19,7 +19,7 @@ RTCFILENAME  = ds1302
 default: compile link converttohex upload clean
 
 
-compile: $(MAINFILENAME).c $(LCDFILENAME).c $(LCDFILENAME).h
+compile: $(MAINFILENAME).c $(LCDFILENAME).c $(LCDFILENAME).h $(RTCFILENAME).c $(RTCFILENAME).o
 
 	avr-gcc $(CFLAGS) $(MAINFILENAME).c -o $(MAINFILENAME).o
 	avr-gcc $(CFLAGS) $(LCDFILENAME).c -o $(LCDFILENAME).o
