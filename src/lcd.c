@@ -436,17 +436,17 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
 // -------------------------------------------------- //
 // sends a pulse to the enable pin
 
-void LCDbeginTransfer(LCD * lcd) {
+void LCDbeginTransmission(LCD * lcd) {
     
     // 1. pull the pin low and wait for the LCD
     clear_io_bit(PORTB, lcd->_en_pin);
     _delay_us(1);
     
-    // 2. pull it high, the enable pulse needs to be >500ns
+    // 2. pull it high, the enable pulse needs to be >450ns
     set_io_bit(PORTB, lcd->_en_pin);
     _delay_us(1);
     
-    // 3. pull it low again and wait for the LCD (>40 us)
+    // 3. pull it low again and wait for the LCD (>37 us)
     clear_io_bit(PORTB, lcd->_en_pin);
     _delay_us(100);
     
