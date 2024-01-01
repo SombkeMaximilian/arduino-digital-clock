@@ -402,7 +402,7 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            LCDbeginTransmission(lcd);
+            LCDbeginTransfer(lcd);
             
             // send 4 lsb last
             for (int i = 0; i < 4; i++) {
@@ -411,7 +411,7 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            LCDbeginTransmission(lcd);
+            LCDbeginTransfer(lcd);
             
             break;
         
@@ -424,7 +424,7 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            LCDbeginTransmission(lcd);
+            LCDbeginTransfer(lcd);
             
             break;
             
@@ -436,7 +436,7 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
 // -------------------------------------------------- //
 // sends a pulse to the enable pin
 
-void LCDbeginTransmission(LCD * lcd) {
+void LCDbeginTransfer(LCD * lcd) {
     
     // 1. pull the pin low and wait for the LCD
     clear_io_bit(PORTB, lcd->_en_pin);

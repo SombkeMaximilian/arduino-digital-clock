@@ -129,6 +129,6 @@ void LCDprint(LCD * lcd, char * data);
 // functions for communicating via the data bus
 
 void LCDsend(LCD * lcd, uint8_t message, uint8_t type);
-void LCDbeginTransmission(LCD * lcd);
+void LCDbeginTransfer(LCD * lcd);
 
 # endif
