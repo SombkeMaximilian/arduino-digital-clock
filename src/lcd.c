@@ -402,7 +402,7 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            LCDbeginTransfer(lcd);
+            LCDbeginTransmission(lcd);
             
             // send 4 lsb last
             for (int i = 0; i < 4; i++) {
@@ -411,7 +411,7 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            LCDbeginTransfer(lcd);
+            LCDbeginTransmission(lcd);
             
             break;
         
@@ -424,7 +424,7 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
                 
             }
             
-            LCDbeginTransfer(lcd);
+            LCDbeginTransmission(lcd);
             
             break;
             
