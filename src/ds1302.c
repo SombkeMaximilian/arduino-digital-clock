@@ -59,7 +59,7 @@ void DS1302TimeDataInit(timeData * data, const char * date, const char * time) {
     }
     
     // get the day of the week
-    data->dayofweek = dayOfWeekFromDate((int) data->day, (int) data->month, (int) data->year);
+    data->dayofweek = DS1302DayOfWeekFromDate((int) data->day, (int) data->month, (int) data->year);
     
 }
 
