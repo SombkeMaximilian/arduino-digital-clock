@@ -16,6 +16,7 @@
 // rw = read or write (1 = read, 0 = write)
 // en = enable pin
 // d0-7 = data pins
+// if rw is not to be set, enter 0b11111111 (0xFF)
 
 void LCDconfig(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
                uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
@@ -81,7 +82,7 @@ void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
             lcd->_displayfunction &= FLAG_FUNCTIONSET_4BITBUS;
             break;
             
-        case 8:
+        default:
             
             lcd->_displayfunction |= FLAG_FUNCTIONSET_8BITBUS;
             break;
@@ -107,15 +108,51 @@ void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
     // displayfunction default settings
     lcd->_displayfunction &= FLAG_FUNCTIONSET_5x8DOT;
     
-    // send the commands
+    // initialize according to the datasheet (page 45-46)
+    // first wait for more than 40ms
+    _delay_ms(50);
+    
+    // pull rs and en pins low, also rw pin if applicable
+    clear_io_bit(PORTB, lcd->_en_pin);
+    clear_io_bit(PORTB, lcd->_rs_pin);
+    if (lcd->_rw_pin != 0xFF) {clear_io_bit(PORTB, lcd->_rw_pin);}
+    
+    // enter 4- or 8-bit mode
+    switch (data_bus_length) {
+    
+        case 4:
+            
+            // for 4-bit mode, send the 4 msb of the command to enter 8-bit mode 3 times
+            LCDsend4bit(lcd, ((MASK_FUNCTIONSET | FLAG_FUNCTIONSET_8BITBUS) >> 4));
+            _delay_ms(5);
+            LCDsend4bit(lcd, ((MASK_FUNCTIONSET | FLAG_FUNCTIONSET_8BITBUS) >> 4));
+            _delay_ms(5);
+            LCDsend4bit(lcd, ((MASK_FUNCTIONSET | FLAG_FUNCTIONSET_8BITBUS) >> 4));
+            _delay_is(200);
+            
+            // then send the command to enter 4-bit mode
+            LCDsend4bit(lcd, ((MASK_FUNCTIONSET & FLAG_FUNCTIONSET_4BITBUS) >> 4));
+            
+            break;
+            
+        default:
+            
+            // for 8-bit mode, send the command to enter 8-bit mode 3 times
+            LCDsend8bit(lcd, (MASK_FUNCTIONSET | FLAG_FUNCTIONSET_8BITBUS));
+            _delay_ms(5);
+            LCDsend8bit(lcd, (MASK_FUNCTIONSET | FLAG_FUNCTIONSET_8BITBUS));
+            _delay_us(200);
+            LCDsend8bit(lcd, (MASK_FUNCTIONSET | FLAG_FUNCTIONSET_8BITBUS));
+            
+            break;
+            
+    }
+    
+    // 4- or 8-bit mode cannot be changed anymore, set the remaining settings
     LCDcommand(lcd, lcd->_displayfunction);
     LCDcommand(lcd, lcd->_displaycontrol);
-    LCDcommand(lcd, lcd->_entrymode);
     LCDclearDisplay(lcd);
-    LCDreturnHome(lcd);
-    
-    // initialize according to the datasheet (page 45-46)
-    // TBD
+    LCDcommand(lcd, lcd->_entrymode);
     
 }
 
@@ -389,6 +426,13 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
             
             break;
             
+    }
+    
+    // pull the rw pin low if applicable
+    if (lcd->_rw_pin != 0xFF) {
+    
+        clear_io_bit(PORTB, lcd->_rw_pin);
+    
     }
     
     // send the data depending on bus width
