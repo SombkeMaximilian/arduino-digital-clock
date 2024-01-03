@@ -18,7 +18,7 @@
 // http://www.cadaeic.net/calendar.htm (modified to be 1 indexed)
 
 
-int DS1302DayOfWeekFromDate(int d, int m, int y) {
+int DS1302dayOfWeekFromDate(int d, int m, int y) {
     
     return (d += m < 3 ? y-- : y - 2, 23*m/9 + d + 4 + y/4- y/100 + y/400)%7;
     
@@ -31,7 +31,7 @@ int DS1302DayOfWeekFromDate(int d, int m, int y) {
 // example "Dec 28 2023" and "05:01:20"
 // use __TIME__ and __DATE__ to get compile timestamp
 
-void DS1302TimeDataInit(timeData * data, const char * date, const char * time) {
+void DS1302timeDataInit(timeData * data, const char * date, const char * time) {
     
     static const char * monthStrings[] = {
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",

@@ -102,8 +102,8 @@ typedef struct DS1302 {
 // ------------------------------------------------------------ //
 // functions for generating and storing the time data
 
-int DS1302DayOfWeekFromDate(int d, int m, int y);
-void DS1302TimeDataInit(timeData * data, const char * date, const char * time);
+int DS1302dayOfWeekFromDate(int d, int m, int y);
+void DS1302timeDataInit(timeData * data, const char * date, const char * time);
 
 // ------------------------------------------------------------ //
 // initialization and configuration of DS1302
