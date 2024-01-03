@@ -102,7 +102,7 @@ void DS1302init(DS1302 * ds1302) {
 // convert it to decimal
 // uses burst mode (datasheet page 8)
 
-void readTimeData(DS1302 * ds1302, timeData * data) {
+void DS1302readTimeData(DS1302 * ds1302, timeData * data) {
     
     // begin communication in burst mode
     DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 0);
@@ -127,7 +127,7 @@ void readTimeData(DS1302 * ds1302, timeData * data) {
 // data in decimal needs to be converted to bcd format
 // uses burst mode (datasheet page 8)
 
-void writeTimeData(DS1302 * ds1302, timeData * data) {
+void DS1302writeTimeData(DS1302 * ds1302, timeData * data) {
     
     // clear write protection flag
     DS1302beginCommunication(ds1302, REGISTER_WP, 1);
