@@ -114,7 +114,7 @@ void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
     LCDclearDisplay(lcd);
     LCDreturnHome(lcd);
     
-    // initialize according to the datasheet (page 44-45)
+    // initialize according to the datasheet (page 45-46)
     // TBD
     
 }
@@ -366,7 +366,9 @@ void LCDprint(LCD * lcd, char * data) {
 
 
 // -------------------------------------------------- //
-// sends 1 byte to the LCD
+// sends a 1 byte message of type (command/data) to 
+// the LCD and automatically picks the right mode (4-
+// or 8-bit)
 
 void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
     
@@ -396,39 +398,53 @@ void LCDsend(LCD * lcd, uint8_t message, uint8_t type) {
         case 0:
             
             // send 4 msb first
-            for (int i = 0; i < 4; i++) {
-                
-                change_io_bit(PORTD, lcd->_data_bus[i], ((message >> (i+4)) & 1));
-                
-            }
-            
-            LCDbeginTransfer(lcd);
-            
+            LCDsend4bit(lcd, (message >> 4));
             // send 4 lsb last
-            for (int i = 0; i < 4; i++) {
-                
-                change_io_bit(PORTD, lcd->_data_bus[i], ((message >> i) & 1));
-                
-            }
-            
-            LCDbeginTransfer(lcd);
-            
+            LCDsend4bit(lcd, message);
             break;
         
         // 8 bit bus
         default:
             
-            for (int i = 0; i < 8; i++) {
-                
-                change_io_bit(PORTD, lcd->_data_bus[i], ((message >> i) & 1));
-                
-            }
-            
-            LCDbeginTransfer(lcd);
-            
+            LCDsend8bit(lcd, message);
             break;
             
     }
+    
+}
+
+
+// -------------------------------------------------- //
+// sends an 8-bit message to the LCD
+
+void LCDsend8bit(LCD * lcd, uint8_t message) {
+    
+    // extract i'th bit of the message by shifting it to
+    // the right i times and then & with 1 (0b00000001)
+    for (int i = 0; i < 8; i++) {
+                
+                change_io_bit(PORTD, lcd->_data_bus[i], ((message >> i) & 1));
+                
+    }
+
+    LCDbeginTransfer(lcd);
+    
+}
+
+
+// -------------------------------------------------- //
+// sends a 4-bit message to the LCD
+
+void LCDsend4bit(LCD * lcd, uint8_t message) {
+    
+    // see LCDsend8bit for explanation
+    for (int i = 0; i < 4; i++) {
+                
+                change_io_bit(PORTD, lcd->_data_bus[i], ((message >> i) & 1));
+                
+    }
+
+    LCDbeginTransfer(lcd);
     
 }
 
