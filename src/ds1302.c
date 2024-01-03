@@ -78,8 +78,8 @@ void DS1302config(DS1302 * ds1302, uint8_t ce, uint8_t io, uint8_t clk) {
     ds1302->_io_pin  = io;
     ds1302->_clk_pin = clk;
     
-    // io direction
-    ds1302->_io_dir  = 0;
+    // io direction (initially output)
+    ds1302->_io_dir  = 1;
     
 }
 
