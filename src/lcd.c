@@ -128,7 +128,7 @@ void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
             LCDsend4bit(lcd, ((MASK_FUNCTIONSET | FLAG_FUNCTIONSET_8BITBUS) >> 4));
             _delay_ms(5);
             LCDsend4bit(lcd, ((MASK_FUNCTIONSET | FLAG_FUNCTIONSET_8BITBUS) >> 4));
-            _delay_is(200);
+            _delay_us(200);
             
             // then send the command to enter 4-bit mode
             LCDsend4bit(lcd, ((MASK_FUNCTIONSET & FLAG_FUNCTIONSET_4BITBUS) >> 4));
