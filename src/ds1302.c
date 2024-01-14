@@ -97,6 +97,72 @@ void DS1302init(DS1302 * ds1302) {
 
 
 // -------------------------------------------------- //
+// stops the clock
+
+void DS1302stop(DS1302 * ds1302) {
+    
+    uint8_t second;
+    
+    // read the seconds data
+    DS1302beginCommunication(ds1302, REGISTER_SECOND, 0);
+    second = DS1302read(ds1302);
+    DS1302setCEpin(ds1302, 0);
+    
+    // set the clock halt flag
+    second |= FLAG_CLOCKHALT;
+    
+    // clear write protection flag
+    DS1302beginCommunication(ds1302, REGISTER_WP, 1);
+    DS1302write(ds1302, 0);
+    DS1302setCEpin(ds1302, 0);
+    
+    // write the data back
+    DS1302beginCommunication(ds1302, REGISTER_SECOND, 1);
+    DS1302write(ds1302, second);
+    DS1302setCEpin(ds1302, 0);
+    
+    // set the write protection flag
+    DS1302beginCommunication(ds1302, REGISTER_HOUR, 1);
+    DS1302write(ds1302, FLAG_WRITEPROTECT);
+    DS1302setCEpin(ds1302, 0);
+    
+}
+
+
+// -------------------------------------------------- //
+// starts the clock
+
+void DS1302start(DS1302 * ds1302) {
+    
+    uint8_t second;
+    
+    // read the seconds data
+    DS1302beginCommunication(ds1302, REGISTER_SECOND, 0);
+    second = DS1302read(ds1302);
+    DS1302setCEpin(ds1302, 0);
+    
+    // clear the clock halt flag
+    second &= ~FLAG_CLOCKHALT;
+    
+    // clear write protection flag
+    DS1302beginCommunication(ds1302, REGISTER_WP, 1);
+    DS1302write(ds1302, 0);
+    DS1302setCEpin(ds1302, 0);
+    
+    // write the data back
+    DS1302beginCommunication(ds1302, REGISTER_SECOND, 1);
+    DS1302write(ds1302, second);
+    DS1302setCEpin(ds1302, 0);
+    
+    // set the write protection flag
+    DS1302beginCommunication(ds1302, REGISTER_HOUR, 1);
+    DS1302write(ds1302, FLAG_WRITEPROTECT);
+    DS1302setCEpin(ds1302, 0);
+    
+}
+
+
+// -------------------------------------------------- //
 // reads time data from DS1302
 // internally the data is in bcd format so we need to
 // convert it to decimal
@@ -108,13 +174,13 @@ void DS1302readTimeData(DS1302 * ds1302, timeData * data) {
     DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 0);
     
     // fetch the data
-    data->second    = bcd_to_dec((DS1302read(ds1302) & MASK_SECOND));
-    data->minute    = bcd_to_dec((DS1302read(ds1302) & MASK_MINUTE));
-    data->hour      = bcd_to_dec((DS1302read(ds1302) & MASK_HOUR));
-    data->day       = bcd_to_dec((DS1302read(ds1302) & MASK_DAY));
-    data->month     = bcd_to_dec((DS1302read(ds1302) & MASK_MONTH));
-    data->dayofweek = bcd_to_dec((DS1302read(ds1302) & MASK_DAYOFWEEK));
-    data->year      = bcd_to_dec((DS1302read(ds1302)));
+    data->second    = DS1302read(ds1302) & MASK_SECOND;
+    data->minute    = DS1302read(ds1302) & MASK_MINUTE;
+    data->hour      = DS1302read(ds1302) & MASK_HOUR;
+    data->day       = DS1302read(ds1302) & MASK_DAY;
+    data->month     = DS1302read(ds1302) & MASK_MONTH;
+    data->dayofweek = DS1302read(ds1302) & MASK_DAYOFWEEK;
+    data->year      = DS1302read(ds1302);
     
     // end communication
     DS1302setCEpin(ds1302, 0);
@@ -191,6 +257,11 @@ void DS1302setClockMode(DS1302 * ds1302, uint8_t mode) {
     // write the hour data back
     DS1302beginCommunication(ds1302, REGISTER_HOUR, 0);
     DS1302write(ds1302, hour);
+    DS1302setCEpin(ds1302, 0);
+    
+    // set the write protection flag
+    DS1302beginCommunication(ds1302, REGISTER_HOUR, 1);
+    DS1302write(ds1302, FLAG_WRITEPROTECT);
     DS1302setCEpin(ds1302, 0);
     
 }

@@ -115,6 +115,8 @@ void DS1302init(DS1302 * ds1302);
 // ------------------------------------------------------------ //
 // user commands for interacting with DS1302
 
+void DS1302stop(DS1302 * ds1302);
+void DS1302start(DS1302 * ds1302);
 void DS1302readTimeData(DS1302 * ds1302, timeData * data);
 void DS1302writeTimeData(DS1302 * ds1302, timeData * data);
 void DS1302setClockMode(DS1302 * ds1302, uint8_t mode);
