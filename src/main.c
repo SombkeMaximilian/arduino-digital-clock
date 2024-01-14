@@ -11,6 +11,7 @@
 
 # include "lcd.h"
 # include "ds1302.h"
+# include "macros.h"
 
 
 // ------------------------------------------------------------ //
@@ -28,7 +29,7 @@ char * formatTime(timeData * data) {
     
     char * time = malloc(17 * sizeof(*time));
     
-    sprintf(time, "%02d:%02d:%02d", data->hour, data->minute, data->second);
+    sprintf(time, "%02d:%02d:%02d", bcd_to_dec(data->hour), bcd_to_dec(data->minute), bcd_to_dec(data->second));
     
     return time;
     
@@ -44,30 +45,30 @@ char * formatDate(timeData * data) {
     char day[4];
     
     switch (data->dayofweek) {
-        case 1:
+        case 0:
             strcpy(day, "SUN");
             break;
-        case 2:
+        case 1:
             strcpy(day, "MON");
             break;
-        case 3:
+        case 2:
             strcpy(day, "TUE");
             break;
-        case 4:
+        case 3:
             strcpy(day, "WED");
             break;
-        case 5:
+        case 4:
             strcpy(day, "THU");
             break;
-        case 6:
+        case 5:
             strcpy(day, "FRI");
             break;
-        case 7:
+        case 6:
             strcpy(day, "SAT");
             break;
     }
     
-    sprintf(date, "%s %02d.%02d.%02d", day, data->day, data->month, data->year);
+    sprintf(date, "%s %02d.%02d.20%02d", day, bcd_to_dec(data->day), bcd_to_dec(data->month), bcd_to_dec(data->year));
     
     return date;
     
@@ -89,10 +90,6 @@ int main (void) {
     DDRD = (1 << PD2) | (1 << PD3) | (1 << PD4) | (1 << PD5) | (1 << PD6);
     DDRB = (1 << PB0) | (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB4);
     
-    // configure and initialize the LCD
-    LCDconfig(&lcd, PB0, PB1, PB2, PD2, PD3, PD4, PD5, 0, 0, 0, 0);
-    LCDinit(&lcd, 4, 2, 16);
-    
     // configure and initialize the RTC
     DS1302config(&ds1302, PB3, PD6, PB4);
     DS1302init(&ds1302);
@@ -103,6 +100,13 @@ int main (void) {
     // get compile time and send it to the RTC module (maybe add an offset later)
     DS1302timeDataInit(&currDateTime, __DATE__, __TIME__);
     DS1302writeTimeData(&ds1302, &currDateTime);
+    
+    // start the clock
+    DS1302start(&ds1302);
+    
+    // configure and initialize the LCD
+    LCDconfig(&lcd, PB0, PB1, PB2, PD2, PD3, PD4, PD5, 0, 0, 0, 0);
+    LCDinit(&lcd, 4, 2, 16);
     
     // loop that displays the clock
     while (1) {
