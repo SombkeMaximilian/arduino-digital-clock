@@ -65,6 +65,7 @@ typedef struct LCD {
     uint8_t _rs_pin;
     uint8_t _rw_pin;
     uint8_t _en_pin;
+    uint8_t _v0_pin;
     uint8_t _data_bus[8];
     
     // commands to send upon initializing
@@ -87,12 +88,16 @@ void LCDconfig(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
                uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
                uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
 void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows, 
-             uint8_t cols);
+             uint8_t cols, uint8_t pwm_contrast);
 
 
 // ------------------------------------------------------------ //
 // user commands for interacting with the LCD
 
+// set contrast via pwm
+void LCDpwmSetContrast(LCD * lcd, uint8_t contrast);
+
+// basic functions
 void LCDclearDisplay(LCD * lcd);
 void LCDreturnHome(LCD * lcd);
 

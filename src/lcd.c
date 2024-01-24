@@ -3,6 +3,7 @@
 
 # include <stdint.h>
 # include <avr/io.h>
+# include <avr/interrupt.h>
 # include <util/delay.h>
 
 # include "lcd.h"
@@ -26,6 +27,9 @@ void LCDconfig(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
     lcd->_rs_pin = rs;
     lcd->_rw_pin = rw;
     lcd->_en_pin = en;
+    
+    // timer2 pwm pin
+    lcd->_v0_pin = PB4;
     
     // data bus pins
     lcd->_data_bus[0] = d0;
@@ -52,7 +56,7 @@ void LCDconfig(LCD * lcd, uint8_t rs, uint8_t rw, uint8_t en,
 // small characters (5x8dot)
 
 void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows, 
-             uint8_t cols) {
+             uint8_t cols, uint8_t pwm_contrast) {
     
     // number of lines and columns, and addresses of the first column in each row
     lcd->_rows = rows;
@@ -154,7 +158,29 @@ void LCDinit(LCD * lcd, uint8_t data_bus_length, uint8_t rows,
     LCDclearDisplay(lcd);
     LCDcommand(lcd, lcd->_entrymode);
     
+    // send pwm signal via timer2 to control contrast if flag is set (pin 11 / B4)
+    if (pwm_contrast == 1) {
+        
+        // initialize timer2 in non-inverting fast pwm mode
+        set_io_bit(DDRB, PB3);
+        TCCR2A = (1 << COM2A1) | (1 << WGM21) | (1 << WGM20);
+        TCCR2B = (1 << CS20);
+        OCR2A  = 85;
+        
+    }
+    
 }
+
+
+// -------------------------------------------------- //
+// uses the Arduino's timer2 to control the contrast
+
+void LCDpwmSetContrast(LCD * lcd, uint8_t contrast) {
+    
+    OCR2A = contrast;
+    
+}
+
 
 // -------------------------------------------------- //
 // clear the display and return cursor to position 0
