@@ -85,28 +85,37 @@ int main (void) {
     timeData currDateTime;
     char * time;
     char * date;
+    int reinit_time;
+    
+    // flag for setting the time again
+    reinit_time = 1;
     
     // set pins to output
-    DDRD = (1 << PD2) | (1 << PD3) | (1 << PD4) | (1 << PD5) | (1 << PD6);
-    DDRB = (1 << PB0) | (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB4);
+    DDRD = (1 << PD2) | (1 << PD3) | (1 << PD4) | (1 << PD5) | (1 << PD7);
+    DDRB = (1 << PB0) | (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB4) | (1 << PB5);
     
     // configure and initialize the RTC
-    DS1302config(&ds1302, PB3, PD6, PB4);
+    DS1302config(&ds1302, PB4, PD7, PB5);
     DS1302init(&ds1302);
     
-    // 24h mode
-    DS1302setClockMode(&ds1302, 0);
-    
-    // get compile time and send it to the RTC module (maybe add an offset later)
-    DS1302timeDataInit(&currDateTime, __DATE__, __TIME__);
-    DS1302writeTimeData(&ds1302, &currDateTime);
-    
-    // start the clock
-    DS1302start(&ds1302);
+    // time and date should only be initialized once (RTC takes care of it afterwards)
+    if (reinit_time == 1) {
+
+        // get compile time and send it to the RTC module (maybe add an offset later)
+        DS1302timeDataInit(&currDateTime, __DATE__, __TIME__);
+        DS1302writeTimeData(&ds1302, &currDateTime);
+        
+        // 24h mode
+        DS1302setClockMode(&ds1302, 0);
+        
+        // start the clock
+        DS1302startClock(&ds1302);
+        
+    }
     
     // configure and initialize the LCD
     LCDconfig(&lcd, PB0, PB1, PB2, PD2, PD3, PD4, PD5, 0, 0, 0, 0);
-    LCDinit(&lcd, 4, 2, 16);
+    LCDinit(&lcd, 4, 2, 16, 1);
     
     // loop that displays the clock
     while (1) {
