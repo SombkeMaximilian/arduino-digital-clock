@@ -99,32 +99,9 @@ void DS1302init(DS1302 * ds1302) {
 // -------------------------------------------------- //
 // stops the clock
 
-void DS1302stop(DS1302 * ds1302) {
+void DS1302stopClock(DS1302 * ds1302) {
     
-    uint8_t second;
-    
-    // read the seconds data
-    DS1302beginCommunication(ds1302, REGISTER_SECOND, 0);
-    second = DS1302read(ds1302);
-    DS1302setCEpin(ds1302, 0);
-    
-    // set the clock halt flag
-    second |= FLAG_CLOCKHALT;
-    
-    // clear write protection flag
-    DS1302beginCommunication(ds1302, REGISTER_WP, 1);
-    DS1302write(ds1302, 0);
-    DS1302setCEpin(ds1302, 0);
-    
-    // write the data back
-    DS1302beginCommunication(ds1302, REGISTER_SECOND, 1);
-    DS1302write(ds1302, second);
-    DS1302setCEpin(ds1302, 0);
-    
-    // set the write protection flag
-    DS1302beginCommunication(ds1302, REGISTER_HOUR, 1);
-    DS1302write(ds1302, FLAG_WRITEPROTECT);
-    DS1302setCEpin(ds1302, 0);
+    DS1302setclearFlag(ds1302, 0, FLAG_CLOCKHALT, 1);
     
 }
 
@@ -132,32 +109,105 @@ void DS1302stop(DS1302 * ds1302) {
 // -------------------------------------------------- //
 // starts the clock
 
-void DS1302start(DS1302 * ds1302) {
+void DS1302startClock(DS1302 * ds1302) {
     
-    uint8_t second;
+    DS1302setclearFlag(ds1302, 0, FLAG_CLOCKHALT, 0);
     
-    // read the seconds data
-    DS1302beginCommunication(ds1302, REGISTER_SECOND, 0);
-    second = DS1302read(ds1302);
+}
+
+
+// -------------------------------------------------- //
+// changes the clock into 12h or 24h mode
+
+void DS1302setClockMode(DS1302 * ds1302, uint8_t mode) {
+    
+    uint8_t data[8];
+    uint8_t currMode;
+    uint8_t hour;
+    uint8_t ampm;
+    
+    // read the data in burst mode
+    DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 0);
+    
+    for (int i = 0; i < 8; i++) {
+        
+        data[i] = DS1302read(ds1302);
+        
+    }
+    
     DS1302setCEpin(ds1302, 0);
     
-    // clear the clock halt flag
-    second &= ~FLAG_CLOCKHALT;
+    // current mode
+    currMode = (data[2] >> 7);
     
-    // clear write protection flag
-    DS1302beginCommunication(ds1302, REGISTER_WP, 1);
-    DS1302write(ds1302, 0);
-    DS1302setCEpin(ds1302, 0);
+    // no need to do anything if the desired mode is already active
+    if (currMode != mode) {
     
-    // write the data back
-    DS1302beginCommunication(ds1302, REGISTER_SECOND, 1);
-    DS1302write(ds1302, second);
-    DS1302setCEpin(ds1302, 0);
+        // set/clear the 12/24h flag and convert between 12h and 24h
+        switch (mode) {
+
+            case 1:
+
+                // extract the hour data (assume AM by default)
+                hour = bcd_to_dec(data[2] & MASK_HOUR);
+                ampm = 0;
+
+                // convert to 12h format if necessary
+                if (hour > 12) {
+
+                    hour -= 12;
+                    ampm = 1;
+
+                }
+
+                // set the hour data again, including AM / PM bit
+                data[2] = (dec_to_bcd(hour)) | (ampm << 5);
+
+                // set the 12h mode flag
+                data[2] |= FLAG_12HOURMODE;
+                break;
+
+            case 0:
+
+                // extract the hour data
+                hour = data[2] & MASK_HOUR;
+
+                // convert to 24h format if necessary (check if PM)
+                if ((hour >> 5) == 1) {
+
+                    // bit 4-0 contain the hour data without the AM / PM bit
+                    hour &= MASK_HOURNOAMPM;
+                    hour = bcd_to_dec(hour) + 12;
+                    data[2] = dec_to_bcd(hour);
+
+                }
+
+                // set the 24h mode (clear 12h mode flag)
+                data[2] &= FLAG_24HOURMODE;
+                break;
+
+        }
+
+        // set the write protect flag in the read data
+        data[7] = FLAG_WRITEPROTECT;
+
+        // clear write protection flag in the ds1302
+        DS1302beginCommunication(ds1302, REGISTER_WP, 1);
+        DS1302write(ds1302, 0);
+        DS1302setCEpin(ds1302, 0);
+
+        // write the data back (including set write protect flag)
+        DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 1);
+
+        for (int i = 0; i < 7; i++) {
+
+            DS1302write(ds1302, data[i]);
+
+        }
+
+        DS1302setCEpin(ds1302, 0);
     
-    // set the write protection flag
-    DS1302beginCommunication(ds1302, REGISTER_HOUR, 1);
-    DS1302write(ds1302, FLAG_WRITEPROTECT);
-    DS1302setCEpin(ds1302, 0);
+    }
     
 }
 
@@ -222,52 +272,6 @@ void DS1302writeTimeData(DS1302 * ds1302, timeData * data) {
 
 
 // -------------------------------------------------- //
-// changes the clock into 12h or 24h mode
-
-void DS1302setClockMode(DS1302 * ds1302, uint8_t mode) {
-    
-    uint8_t hour;
-    
-    // clear write protection flag
-    DS1302beginCommunication(ds1302, REGISTER_HOUR, 1);
-    DS1302write(ds1302, 0);
-    DS1302setCEpin(ds1302, 0);
-    
-    // read the current hour data
-    DS1302beginCommunication(ds1302, REGISTER_HOUR, 0);
-    hour = DS1302read(ds1302);
-    DS1302setCEpin(ds1302, 0);
-    
-    // set clock mode flag (bit 7)
-    ds1302->_clockmode = mode;
-    switch (ds1302->_clockmode) {
-        
-        case 0:
-            
-            hour &= FLAG_24HOURMODE;
-            break;
-        
-        case 1:
-            
-            hour |= FLAG_12HOURMODE;
-            break;
-        
-    }
-    
-    // write the hour data back
-    DS1302beginCommunication(ds1302, REGISTER_HOUR, 0);
-    DS1302write(ds1302, hour);
-    DS1302setCEpin(ds1302, 0);
-    
-    // set the write protection flag
-    DS1302beginCommunication(ds1302, REGISTER_HOUR, 1);
-    DS1302write(ds1302, FLAG_WRITEPROTECT);
-    DS1302setCEpin(ds1302, 0);
-    
-}
-
-
-// -------------------------------------------------- //
 // begins communication with the DS1302 with a command
 // bit 7 must be high
 // bit 6 specifies time data (0) or RAM data (1)
@@ -322,6 +326,61 @@ void DS1302write(DS1302 * ds1302, uint8_t message) {
         DS1302clockPulse(ds1302);
         
     }
+    
+}
+
+
+// -------------------------------------------------- //
+// set or clear a flag (only used for clock halt for now)
+
+void DS1302setclearFlag(DS1302 * ds1302, uint8_t flag_register, uint8_t flag, uint8_t setclear) {
+    
+    uint8_t data[8];
+    
+    // read the data in burst mode
+    DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 0);
+    
+    for (int i = 0; i < 8; i++) {
+        
+        data[i] = DS1302read(ds1302);
+        
+    }
+    
+    DS1302setCEpin(ds1302, 0);
+    
+    // set (setclear = 1) or clear (setclear = 0) the flag
+    switch (setclear) {
+        
+        case 1:
+            
+            data[flag_register] |= flag;
+            break;
+        
+        case 0:
+        
+            data[flag_register] &= ~flag;
+            break;
+        
+    }
+    
+    // set the write protect flag in the read data
+    data[7] = FLAG_WRITEPROTECT;
+    
+    // clear write protection flag in the ds1302
+    DS1302beginCommunication(ds1302, REGISTER_WP, 1);
+    DS1302write(ds1302, 0);
+    DS1302setCEpin(ds1302, 0);
+    
+    // write the data back (including set write protect flag)
+    DS1302beginCommunication(ds1302, REGISTER_CLOCKBURST, 1);
+    
+    for (int i = 0; i < 7; i++) {
+        
+        DS1302write(ds1302, data[i]);
+        
+    }
+    
+    DS1302setCEpin(ds1302, 0);
     
 }
 

@@ -18,12 +18,13 @@
 // -------------------------------------------------- //
 // register data extraction masks (datasheet page 9)
 
-# define MASK_SECOND      ~(1 << 7)
-# define MASK_MINUTE      ~(1 << 7)
-# define MASK_HOUR        ~((1 << 7) | (1 << 6))
-# define MASK_DAY         ~((1 << 7) | (1 << 6))
-# define MASK_MONTH       ~((1 << 7) | (1 << 6) | (1 << 5))
-# define MASK_DAYOFWEEK    ((1 << 2) | (1 << 1) | (1 << 0))
+# define MASK_SECOND        ~(1 << 7)
+# define MASK_MINUTE        ~(1 << 7)
+# define MASK_HOUR          ~((1 << 7) | (1 << 6))
+# define MASK_HOURNOAMPM    ~((1 << 7) | (1 << 6) | (1 << 5))
+# define MASK_DAY           ~((1 << 7) | (1 << 6))
+# define MASK_MONTH         ~((1 << 7) | (1 << 6) | (1 << 5))
+# define MASK_DAYOFWEEK      ((1 << 2) | (1 << 1) | (1 << 0))
 
 
 // -------------------------------------------------- //
@@ -115,11 +116,11 @@ void DS1302init(DS1302 * ds1302);
 // ------------------------------------------------------------ //
 // user commands for interacting with DS1302
 
-void DS1302stop(DS1302 * ds1302);
-void DS1302start(DS1302 * ds1302);
+void DS1302stopClock(DS1302 * ds1302);
+void DS1302startClock(DS1302 * ds1302);
+void DS1302setClockMode(DS1302 * ds1302, uint8_t mode);
 void DS1302readTimeData(DS1302 * ds1302, timeData * data);
 void DS1302writeTimeData(DS1302 * ds1302, timeData * data);
-void DS1302setClockMode(DS1302 * ds1302, uint8_t mode);
 
 
 // ------------------------------------------------------------ //
@@ -128,6 +129,7 @@ void DS1302setClockMode(DS1302 * ds1302, uint8_t mode);
 void DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir);
 uint8_t DS1302read(DS1302 * ds1302);
 void DS1302write(DS1302 * ds1302, uint8_t message);
+void DS1302setclearFlag(DS1302 * ds1302, uint8_t flag_register, uint8_t flag, uint8_t setclear);
 void DS1302setIOdir(DS1302 * ds1302, uint8_t dir);
 void DS1302setCEpin(DS1302 * ds1302, uint8_t value);
 void DS1302clockPulse(DS1302 * ds1302);
