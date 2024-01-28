@@ -79,6 +79,7 @@ char * formatDate(timeData * data) {
 
 // ------------------------------------------------------------ //
 // digital clock mode 
+//
 // 0 = display time & date
 // 1 = humidity & temperature
 // 2 = auto-scroll text
@@ -249,6 +250,7 @@ int main (void) {
 
 // ------------------------------------------------------------ //
 // interrupt service routine for INT0
+//
 // cycle modes of the digital clock
 
 ISR(INT0_vect) {
