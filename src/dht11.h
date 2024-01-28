@@ -38,7 +38,7 @@ void DHT11config(DHT11 * dht11, uint8_t io);
 // ------------------------------------------------------------ //
 // user command for retrieving temperature and humidity data
 
-void DHT11readData(DHT11 * dht11, DHT11data * data);
+void DHT11readData(DHT11 * dht11, DHT11Data * data);
 
 
 // ------------------------------------------------------------ //

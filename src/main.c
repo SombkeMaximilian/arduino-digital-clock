@@ -113,9 +113,8 @@ int main (void) {
     DDRD = (1 << PD3) | (1 << PD4) | (1 << PD5) | (1 << PD6) | (1 << PD7);
     DDRB = (1 << PB0) | (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB4) | (1 << PB5);
     
-    // configure and initialize the RTC
-    DS1302config(&ds1302, PB4, PD7, PB5);
-    DS1302init(&ds1302);
+    // initialize the RTC
+    DS1302init(&ds1302, PB4, PD7, PB5);
     
     // time and date should only be initialized once (RTC takes care of it afterwards)
     if (reinit_time == 1) {

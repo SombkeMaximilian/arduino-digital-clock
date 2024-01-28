@@ -15,9 +15,11 @@
 
 void DHT11config(DHT11 * dht11, uint8_t io) {
     
+    // pin
+    dht11->_io_pin  = io;
     
-    
-    
+    // io direction (initially output)
+    dht11->_io_dir  = 1;
     
 }
 
@@ -25,7 +27,7 @@ void DHT11config(DHT11 * dht11, uint8_t io) {
 // ------------------------------------------------------------ //
 // user command for retrieving temperature and humidity data
 
-void DHT11readData(DHT11 * dht11, DHT11data * data) {
+void DHT11readData(DHT11 * dht11, DHT11Data * data) {
     
     
     

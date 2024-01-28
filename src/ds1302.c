@@ -66,13 +66,13 @@ void DS1302timeDataInit(timeData * data, const char * date, const char * time, u
 
 
 // -------------------------------------------------- //
-// configure the DS1302 pins
+// initialize the DS1302
 // 
 // ce  = chip enable (1 = on, 0 = off)
 // io  = io pin for writing and reading data
 // clk = clock pin
 
-void DS1302config(DS1302 * ds1302, uint8_t ce, uint8_t io, uint8_t clk) {
+void DS1302init(DS1302 * ds1302, uint8_t ce, uint8_t io, uint8_t clk) {
     
     // pins
     ds1302->_ce_pin  = ce;
@@ -81,14 +81,6 @@ void DS1302config(DS1302 * ds1302, uint8_t ce, uint8_t io, uint8_t clk) {
     
     // io direction (initially output)
     ds1302->_io_dir  = 1;
-    
-}
-
-
-// -------------------------------------------------- //
-// initialize the DS1302
-
-void DS1302init(DS1302 * ds1302) {
     
     // chip enable off and no clock signal (kept low)
     clear_io_bit(PORTB, ds1302->_ce_pin);

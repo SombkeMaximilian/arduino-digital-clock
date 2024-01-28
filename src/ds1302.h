@@ -107,10 +107,9 @@ int DS1302dayOfWeekFromDate(int d, int m, int y);
 void DS1302timeDataInit(timeData * data, const char * date, const char * time, uint8_t offset);
 
 // ------------------------------------------------------------ //
-// initialization and configuration of DS1302
+// initialization of DS1302
 
-void DS1302config(DS1302 * ds1302, uint8_t ce, uint8_t io, uint8_t clk);
-void DS1302init(DS1302 * ds1302);
+void DS1302init(DS1302 * ds1302, uint8_t ce, uint8_t io, uint8_t clk);
 
 
 // ------------------------------------------------------------ //
