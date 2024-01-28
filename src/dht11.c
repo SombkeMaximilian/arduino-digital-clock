@@ -54,7 +54,7 @@ void DHT11readData(DHT11 * dht11, DHT11Data * data) {
 //
 // DHT11 sends data by pulling the io pin high, the value
 // depends on the voltage-length
-// 50us    = 1
+// 70us    = 1
 // 26-28us = 0
 
 uint8_t DHT11read8bit(DHT11 * dht11) {
