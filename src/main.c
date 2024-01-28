@@ -31,7 +31,7 @@ char * formatTime(timeData * data) {
     
     char * time = malloc(17 * sizeof(*time));
     
-    sprintf(time, "%02d:%02d:%02d", bcd_to_dec(data->hour), bcd_to_dec(data->minute), bcd_to_dec(data->second));
+    sprintf(time, "%02d:%02d:%02d        ", bcd_to_dec(data->hour), bcd_to_dec(data->minute), bcd_to_dec(data->second));
     
     return time;
     
@@ -70,11 +70,40 @@ char * formatDate(timeData * data) {
             break;
     }
     
-    sprintf(date, "%s %02d.%02d.20%02d", day, bcd_to_dec(data->day), bcd_to_dec(data->month), bcd_to_dec(data->year));
+    sprintf(date, "%s %02d.%02d.20%02d  ", day, bcd_to_dec(data->day), bcd_to_dec(data->month), bcd_to_dec(data->year));
     
     return date;
     
 }
+
+
+// ------------------------------------------------------------ //
+// function that formats humidity into a string
+
+char * formatHumidity(DHT11Data * data) {
+    
+    char * humidity = malloc(17 * sizeof(*humidity));
+    
+    sprintf(humidity, "Humi: %d.%d%%     ", data->humi_integral, data->humi_decimal);
+    
+    return humidity;
+    
+}
+
+
+// ------------------------------------------------------------ //
+// function that formats temperature into a string
+
+char * formatTemperature(DHT11Data * data) {
+    
+    char * temperature = malloc(17 * sizeof(*temperature));
+    
+    sprintf(temperature, "Temp: %d.%dC     ", data->temp_integral, data->temp_decimal);
+    
+    return temperature;
+    
+}
+
 
 
 // ------------------------------------------------------------ //
@@ -93,10 +122,13 @@ int main (void) {
     
     LCD lcd;
     DS1302 ds1302;
+    DHT11 dht11;
     timeData curr_date_time;
     DHT11Data curr_humi_temp;
     char * time;
     char * date;
+    char * humidity;
+    char * temperature;
     char * scrolling_text;
     uint8_t reinit_time;
     
@@ -131,6 +163,9 @@ int main (void) {
         DS1302startClock(&ds1302);
         
     }
+    
+    // initialize the DHT11
+    DHT11init(&dht11, PB0);
     
     // configure and initialize the LCD
     LCDconfig(&lcd, PB1, 0xFF, PB2, PD3, PD4, PD5, PD6, 0, 0, 0, 0);
@@ -179,9 +214,26 @@ int main (void) {
 
                 // loop that displays temperature and humidity (will maybe add this with a DHT11)
                 while (1) {
-
+                    
+                    // read the data
+                    DHT11readData(&dht11, &curr_humi_temp);
+                    
+                    // format it
+                    humidity    = formatHumidity(&curr_humi_temp);
+                    temperature = formatTemperature(&curr_humi_temp);
+                    
+                    // return to position (0,0) and print the data
                     LCDreturnHome(&lcd);
-                    LCDprint(&lcd, "not implemented");
+                    LCDprint(&lcd, humidity);
+                    LCDsetCursorPosition(&lcd, 1, 0);
+                    LCDprint(&lcd, temperature);
+                    
+                    // free the memory
+                    free(humidity);
+                    free(temperature);
+                    
+                    // delay
+                    _delay_ms(2000);
                     
                     // check if still in temperature and humidity mode
                     if (mode != 1) {
