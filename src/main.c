@@ -12,6 +12,7 @@
 
 # include "lcd.h"
 # include "ds1302.h"
+# include "dht11.h"
 # include "macros.h"
 
 
@@ -77,8 +78,10 @@ char * formatDate(timeData * data) {
 
 
 // ------------------------------------------------------------ //
-// digital clock mode (0 = display time & date, 1 = ???, 
-// 2 = auto-scroll text)
+// digital clock mode 
+// 0 = display time & date
+// 1 = humidity & temperature
+// 2 = auto-scroll text
 uint8_t mode = 0;
 
 
@@ -90,6 +93,7 @@ int main (void) {
     LCD lcd;
     DS1302 ds1302;
     timeData curr_date_time;
+    DHT11Data curr_humi_temp;
     char * time;
     char * date;
     char * scrolling_text;
@@ -103,7 +107,7 @@ int main (void) {
     sei();
     
     // flag for setting the time again
-    reinit_time = 1;
+    reinit_time = 0;
     
     // set pins to output
     DDRD = (1 << PD3) | (1 << PD4) | (1 << PD5) | (1 << PD6) | (1 << PD7);
@@ -117,8 +121,14 @@ int main (void) {
     if (reinit_time == 1) {
 
         // get compile time and send it to the RTC module (maybe add an offset later)
-        DS1302timeDataInit(&curr_date_time, __DATE__, __TIME__);
+        DS1302timeDataInit(&curr_date_time, __DATE__, __TIME__, 4);
         DS1302writeTimeData(&ds1302, &curr_date_time);
+        
+        // 24h mode
+        DS1302setClockMode(&ds1302, 0);
+        
+        // start the clock
+        DS1302startClock(&ds1302);
         
     }
     
