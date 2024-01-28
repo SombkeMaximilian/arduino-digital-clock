@@ -28,11 +28,11 @@ int DS1302dayOfWeekFromDate(int d, int m, int y) {
 
 // ------------------------------------------------------------ //
 // takes time and date as a format string input and stores it
-// in the data struct
+// in the data struct (offset for compile and upload time)
 // example "Dec 28 2023" and "05:01:20"
 // use __TIME__ and __DATE__ to get compile timestamp
 
-void DS1302timeDataInit(timeData * data, const char * date, const char * time) {
+void DS1302timeDataInit(timeData * data, const char * date, const char * time, uint8_t offset) {
     
     static const char * monthStrings[] = {
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
@@ -46,7 +46,7 @@ void DS1302timeDataInit(timeData * data, const char * date, const char * time) {
     sscanf(date, "%s %d %d", monthtext, &day, &year);
     
     // fill in the data
-    data->second = second;
+    data->second = second + offset;
     data->minute = minute;
     data->hour   = hour;
     data->day    = day;
@@ -284,7 +284,7 @@ void DS1302beginCommunication(DS1302 * ds1302, uint8_t addr, uint8_t dir) {
     DS1302setIOdir(ds1302, 1);
     DS1302setCEpin(ds1302, 1);
     
-    uint8_t message = (1 << 7) | ~dir | addr;
+    uint8_t message = (1 << 7) | addr | (dir ^ 1);
     DS1302write(ds1302, message);
     
     DS1302setIOdir(ds1302, dir);
