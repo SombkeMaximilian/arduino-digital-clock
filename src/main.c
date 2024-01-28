@@ -120,16 +120,10 @@ int main (void) {
         DS1302timeDataInit(&curr_date_time, __DATE__, __TIME__);
         DS1302writeTimeData(&ds1302, &curr_date_time);
         
-        // 24h mode
-        DS1302setClockMode(&ds1302, 0);
-        
-        // start the clock
-        DS1302startClock(&ds1302);
-        
     }
     
     // configure and initialize the LCD
-    LCDconfig(&lcd, PB0, PB1, PB2, PD3, PD4, PD5, PD6, 0, 0, 0, 0);
+    LCDconfig(&lcd, PB1, 0xFF, PB2, PD3, PD4, PD5, PD6, 0, 0, 0, 0);
     LCDinit(&lcd, 4, 2, 16, 1);
     
     // master loop
