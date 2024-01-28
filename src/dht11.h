@@ -11,6 +11,7 @@ typedef struct DHT11Data {
     uint8_t humi_integral;
     uint8_t humi_decimal;
     uint8_t checksum;
+    uint8_t isvalid;
     
 } DHT11Data;
 
@@ -32,7 +33,7 @@ typedef struct DHT11 {
 // ------------------------------------------------------------ //
 // configuration of DHT11
 
-void DHT11config(DHT11 * dht11, uint8_t io);
+void DHT11init(DHT11 * dht11, uint8_t io);
 
 
 // ------------------------------------------------------------ //
@@ -44,7 +45,8 @@ void DHT11readData(DHT11 * dht11, DHT11Data * data);
 // ------------------------------------------------------------ //
 // functions for communicating with DHT11
 
-void DHT11read8bit(DHT11 * dht11);
+uint8_t DHT11read8bit(DHT11 * dht11);
 void DHT11beginTransfer(DHT11 * dht11);
+void DHT11setIOdir(DHT11 * dht11, uint8_t dir);
 
 # endif
