@@ -228,7 +228,7 @@ void LCDtextRightToLeft(LCD * lcd) {
 
 
 // -------------------------------------------------- //
-// entire display is shifted on DDRAM write operation
+// entire display is shifted on DDRAM write operation,
 // the shift direction depends on text direction
 
 void LCDautoShiftOn(LCD * lcd) {

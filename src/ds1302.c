@@ -15,6 +15,7 @@
 
 // ------------------------------------------------------------ //
 // takes a date and calculates the day of the week from it
+//
 // sunday = 1, ..., saturday = 7
 // http://www.cadaeic.net/calendar.htm (modified to be 1 indexed)
 
@@ -28,6 +29,7 @@ int DS1302dayOfWeekFromDate(int d, int m, int y) {
 
 // ------------------------------------------------------------ //
 // takes time and date as a format string input and stores it
+//
 // in the data struct (offset for compile and upload time)
 // example "Dec 28 2023" and "05:01:20"
 // use __TIME__ and __DATE__ to get compile timestamp
@@ -207,6 +209,7 @@ void DS1302setClockMode(DS1302 * ds1302, uint8_t mode) {
 
 // -------------------------------------------------- //
 // reads time data from DS1302
+//
 // internally the data is in bcd format so we need to
 // convert it to decimal
 // uses burst mode (datasheet page 8)
@@ -233,6 +236,7 @@ void DS1302readTimeData(DS1302 * ds1302, timeData * data) {
 
 // -------------------------------------------------- //
 // writes time data to DS1302
+//
 // data in decimal needs to be converted to bcd format
 // uses burst mode (datasheet page 8)
 
@@ -266,6 +270,7 @@ void DS1302writeTimeData(DS1302 * ds1302, timeData * data) {
 
 // -------------------------------------------------- //
 // begins communication with the DS1302 with a command
+//
 // bit 7 must be high
 // bit 6 specifies time data (0) or RAM data (1)
 // bit 5-1 specify designated register (addr)
@@ -380,6 +385,7 @@ void DS1302setclearFlag(DS1302 * ds1302, uint8_t flag_register, uint8_t flag, ui
 
 // -------------------------------------------------- //
 // changes the data direction of the io pin
+//
 // 1 = write to DS1302
 // 0 = read from DS1302
 
@@ -403,6 +409,7 @@ void DS1302setCEpin(DS1302 * ds1302, uint8_t value) {
 
 // -------------------------------------------------- //
 // sends a pulse to the clock pin
+//
 // rising edge = initiates write
 // falling edge = initiates read
 
